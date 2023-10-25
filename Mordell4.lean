@@ -4,3 +4,4 @@ import Mordell4.MordelExtra
 import Mordell4.Mordell
 import Mordell4.Rt2Ring
 import Mordell4.Rt7Ring
+import Mordell4.Mordell2

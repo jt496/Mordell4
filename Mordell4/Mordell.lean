@@ -1,7 +1,6 @@
 import Mathlib.Tactic
 import Mathlib.Data.Complex.Basic
 import Mathlib.RingTheory.EuclideanDomain
-import Mordell4.Rt7Ring
 import Mathlib.RingTheory.Coprime.Basic
 import Mathlib.RingTheory.PrincipalIdealDomain
 import Mathlib.NumberTheory.Divisors
@@ -13,6 +12,7 @@ import Mathlib.Data.Nat.PrimeNormNum
 import Mathlib.Algebra.GCDMonoid.Basic
 import Mathlib.Algebra.Group.Units
 import Mathlib.Algebra.Group.Defs
+import Mordell4.Rt7Ring
 
 #align_import mordell
 
