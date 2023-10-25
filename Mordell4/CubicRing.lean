@@ -342,7 +342,7 @@ theorem y_mod_three (y : ℤ) (s : ℤ) (h : y % 3 = s) : ∃ k : ℤ, y = 3 * k
 theorem unit_sq : ((unit ^ 2 : ℤθˣ) : ℤθ) = ⟨-5, -14, -4⟩ :=
   by
   rw [pow_two]
-  have h : ((Unit * Unit : ℤθˣ) : ℤθ) = ((Unit : ℤθˣ) : ℤθ) * ((Unit : ℤθˣ) : ℤθ) := by rfl
+  have h : ((unit * unit : ℤθˣ) : ℤθ) = ((unit : ℤθˣ) : ℤθ) * ((unit : ℤθˣ) : ℤθ) := by rfl
   rw [h]
   rw [unit_l]
   rw [mul_mule_3]; dsimp; norm_num
