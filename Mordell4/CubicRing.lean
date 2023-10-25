@@ -388,7 +388,7 @@ theorem unit_pow_one :
   rfl
   constructor
   rfl; rfl
-
+#check ℤθ.ext_iff
 theorem unit_pow_zero_mod_three :
     ∀ k : ℕ,
       (((unit ^ (3 * (k : ℤ)) : ℤθˣ) : ℤθ).f % 3 = 1 ∧
@@ -406,20 +406,20 @@ theorem unit_pow_zero_mod_three :
     cases' h23 with h2 h3
     have p : b.succ = b + 1 := by rfl
     repeat' rw [p]
-    have w : (unit ^ (3 * (b + 1)) : ℤθ) = (unit ^ (3 * b) : ℤθ) * (unit ^ 3 : ℤθ) := by
+    have w : (unit ^ (3 * (b + 1)) : ℤθ) = (unit ^ (3 * b) : ℤθ) * ((unit:ℤθ) ^ 3 : ℤθ) := by
       rw [mul_add, mul_one, pow_add]
     have t1 : ((unit : ℤθ) ^ (3 * b)).f % 3 = 1 :=
       by
       norm_cast
-      exact h1
+--      exact h1
     have t2 : ((unit : ℤθ) ^ (3 * b)).g % 3 = 0 :=
       by
       norm_cast
-      exact h2
+  --    exact h2
     have t3 : ((unit : ℤθ) ^ (3 * b)).h % 3 = 0 :=
       by
       norm_cast
-      exact h3
+  --    exact h3
     have r1 := y_mod_three (unit ^ (3 * b) : ℤθ).f 1 t1
     cases' r1 with c1 hc1
     have r2 := y_mod_three (unit ^ (3 * b) : ℤθ).g 0 t2
@@ -433,13 +433,15 @@ theorem unit_pow_zero_mod_three :
       ext <;> dsimp
       exact hc1; exact hc2; exact hc3
     -- just the same as w?
-    have s1 : (unit ^ (3 * (b + 1)) : ℤθ) = (unit ^ (3 * b) : ℤθ) * (unit ^ 3 : ℤθ) :=
+    have s1 : (unit ^ (3 * (b + 1)) : ℤθ) = (unit ^ (3 * b) : ℤθ) * ((unit:ℤθ) ^ 3 : ℤθ) :=
       by
+      norm_cast
       rw [← pow_add]
       rw [mul_add, mul_one]
     rw [s] at s1 ; rw [unit_cubed] at s1
-    rw [mul_mule_3] at s1 ; dsimp at s1 ; ring_nf at s1
-    rw [ext_iff] at s1 ; dsimp at s1
+    rw [hMul_mule_3] at s1 ; dsimp at s1 ; ring_nf at s1
+    rw [ℤθ.ext_iff] at s1 ;
+    dsimp at s1
     norm_cast at s1
     cases' s1 with f1 f23
     cases' f23 with f2 f3
