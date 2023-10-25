@@ -237,6 +237,8 @@ instance isRing : CommRing ℤθ where
   add := add
   one := one
   mul := mul
+  zero_mul := sorry
+  mul_zero := sorry
   add_assoc := my_add_assoc
   zero_add := my_zero_add
   add_zero := my_add_zero
@@ -288,8 +290,7 @@ theorem unit_neg_1 : ((unit ^ (-(1 : ℤ)) : ℤθˣ) : ℤθ) = ⟨25, 13, 5⟩
 theorem simp_norm (a b : ℤ) :
     norm (⟨a, -b, 0⟩ : ℤθ) = |a ^ 3 + 3 * a ^ 2 * b + 6 * a * b ^ 2 + 2 * b ^ 3| :=
   by
-  unfold Norm
-  dsimp
+  unfold norm
   ring_nf
 
 theorem hMul_mule_3 (a b : ℤθ) :
@@ -311,7 +312,7 @@ theorem norm_hMul (r s : ℤθ) : norm r * norm s = norm (r * s) :=
 theorem norm_divides {p a : ℤθ} (h : p ∣ a) : norm p ∣ norm a :=
   by
   cases' h with n hn
-  use Norm n
+  use norm n
   rw [norm_mul p n]
   rw [hn]
 
