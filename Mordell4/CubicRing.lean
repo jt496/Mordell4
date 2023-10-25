@@ -313,17 +313,17 @@ theorem norm_divides {p a : ℤθ} (h : p ∣ a) : norm p ∣ norm a :=
   by
   cases' h with n hn
   use norm n
-  rw [norm_mul p n]
+  rw [norm_hMul p n]
   rw [hn]
 
 theorem norm_one_if_unit (k : ℤθ) : IsUnit k → norm k = 1 :=
-  by
+ by
   intro h
   rw [isUnit_iff_exists_inv] at h
   have p : ∃ b : ℤθ, 1 = k * b := by tauto
   change k ∣ 1 at p
-  have l := Norm_divides p
-  have d : Norm 1 = 1 := by ring
+  have l := norm_divides p
+  have d : norm 1 = 1 := by ring
   rw [d] at l
   refine' Int.eq_one_of_dvd_one _ l
   exact abs_nonneg _
@@ -342,10 +342,10 @@ theorem y_mod_three (y : ℤ) (s : ℤ) (h : y % 3 = s) : ∃ k : ℤ, y = 3 * k
 theorem unit_sq : ((unit ^ 2 : ℤθˣ) : ℤθ) = ⟨-5, -14, -4⟩ :=
   by
   rw [pow_two]
-  have h : ((unit * unit : ℤθˣ) : ℤθ) = ((unit : ℤθˣ) : ℤθ) * ((unit : ℤθˣ) : ℤθ) := by rfl
-  rw [h]
+  have h1 : ((unit * unit : ℤθˣ) : ℤθ) = ((unit : ℤθˣ) : ℤθ) * ((unit : ℤθˣ) : ℤθ) := by rfl
+  rw [h1]
   rw [unit_l]
-  rw [mul_mule_3]; dsimp; norm_num
+  rw [hMul_mule_3]; dsimp; norm_num
 
 theorem unit_cubed : (unit : ℤθ) ^ 3 = ⟨-23, -63, -15⟩ :=
   by
@@ -363,7 +363,7 @@ theorem unit_inv_cubed : ((unit ^ (-3 : ℤ) : ℤθˣ) : ℤθ) = ⟨10591, 555
   rw [mul_assoc]
   --how did that work?
   change
-    ((Unit ^ (-1 : ℤ) : ℤθˣ) : ℤθ) * ((Unit ^ (-1 : ℤ) : ℤθˣ) * (Unit ^ (-1 : ℤ) : ℤθˣ) : ℤθ) =
+    ((unit ^ (-1 : ℤ) : ℤθˣ) : ℤθ) * ((unit ^ (-1 : ℤ) : ℤθˣ) * (unit ^ (-1 : ℤ) : ℤθˣ) : ℤθ) =
       ⟨10591, 5553, 2139⟩
   rw [unit_neg_1]
   nth_rw 2 [mul_mule_3]
@@ -406,34 +406,34 @@ theorem unit_pow_zero_mod_three :
     cases' h23 with h2 h3
     have p : b.succ = b + 1 := by rfl
     repeat' rw [p]
-    have w : (Unit ^ (3 * (b + 1)) : ℤθ) = (Unit ^ (3 * b) : ℤθ) * (Unit ^ 3 : ℤθ) := by
+    have w : (unit ^ (3 * (b + 1)) : ℤθ) = (unit ^ (3 * b) : ℤθ) * (unit ^ 3 : ℤθ) := by
       rw [mul_add, mul_one, pow_add]
-    have t1 : ((Unit : ℤθ) ^ (3 * b)).f % 3 = 1 :=
+    have t1 : ((unit : ℤθ) ^ (3 * b)).f % 3 = 1 :=
       by
       norm_cast
       exact h1
-    have t2 : ((Unit : ℤθ) ^ (3 * b)).g % 3 = 0 :=
+    have t2 : ((unit : ℤθ) ^ (3 * b)).g % 3 = 0 :=
       by
       norm_cast
       exact h2
-    have t3 : ((Unit : ℤθ) ^ (3 * b)).h % 3 = 0 :=
+    have t3 : ((unit : ℤθ) ^ (3 * b)).h % 3 = 0 :=
       by
       norm_cast
       exact h3
-    have r1 := y_mod_three (Unit ^ (3 * b) : ℤθ).f 1 t1
+    have r1 := y_mod_three (unit ^ (3 * b) : ℤθ).f 1 t1
     cases' r1 with c1 hc1
-    have r2 := y_mod_three (Unit ^ (3 * b) : ℤθ).g 0 t2
+    have r2 := y_mod_three (unit ^ (3 * b) : ℤθ).g 0 t2
     cases' r2 with c2 hc2
     rw [add_zero] at hc2
-    have r3 := y_mod_three (Unit ^ (3 * b) : ℤθ).h 0 t3
+    have r3 := y_mod_three (unit ^ (3 * b) : ℤθ).h 0 t3
     cases' r3 with c3 hc3
     rw [add_zero] at hc3
-    have s : (Unit ^ (3 * b) : ℤθ) = ⟨3 * c1 + 1, 3 * c2, 3 * c3⟩ :=
+    have s : (unit ^ (3 * b) : ℤθ) = ⟨3 * c1 + 1, 3 * c2, 3 * c3⟩ :=
       by
       ext <;> dsimp
       exact hc1; exact hc2; exact hc3
     -- just the same as w?
-    have s1 : (Unit ^ (3 * (b + 1)) : ℤθ) = (Unit ^ (3 * b) : ℤθ) * (Unit ^ 3 : ℤθ) :=
+    have s1 : (unit ^ (3 * (b + 1)) : ℤθ) = (unit ^ (3 * b) : ℤθ) * (unit ^ 3 : ℤθ) :=
       by
       rw [← pow_add]
       rw [mul_add, mul_one]
@@ -470,20 +470,20 @@ theorem unit_pow_zero_mod_three :
     -- why is it auto repeating?
     --why this notation?
     have w :
-      ((Unit ^ ((3 : ℤ) * -(b + 1 : ℤ)) : ℤθˣ) : ℤθ) =
-        ((Unit ^ (3 * -(b : ℤ)) : ℤθˣ) : ℤθ) * ((Unit ^ (-3 : ℤ) : ℤθˣ) : ℤθ) :=
+      ((unit ^ ((3 : ℤ) * -(b + 1 : ℤ)) : ℤθˣ) : ℤθ) =
+        ((unit ^ (3 * -(b : ℤ)) : ℤθˣ) : ℤθ) * ((unit ^ (-3 : ℤ) : ℤθˣ) : ℤθ) :=
       by
       rw [neg_add, mul_add, mul_neg_one, zpow_add]
       norm_cast
-    have r1 := y_mod_three ((Unit ^ ((3 : ℤ) * -(b : ℤ)) : ℤθˣ) : ℤθ).f 1 h1
+    have r1 := y_mod_three ((unit ^ ((3 : ℤ) * -(b : ℤ)) : ℤθˣ) : ℤθ).f 1 h1
     cases' r1 with c1 hc1
-    have r2 := y_mod_three ((Unit ^ ((3 : ℤ) * -(b : ℤ)) : ℤθˣ) : ℤθ).g 0 h2
+    have r2 := y_mod_three ((unit ^ ((3 : ℤ) * -(b : ℤ)) : ℤθˣ) : ℤθ).g 0 h2
     cases' r2 with c2 hc2
     rw [add_zero] at hc2
-    have r3 := y_mod_three ((Unit ^ ((3 : ℤ) * -(b : ℤ)) : ℤθˣ) : ℤθ).h 0 h3
+    have r3 := y_mod_three ((unit ^ ((3 : ℤ) * -(b : ℤ)) : ℤθˣ) : ℤθ).h 0 h3
     cases' r3 with c3 hc3
     rw [add_zero] at hc3
-    have s : ((Unit ^ ((3 : ℤ) * -(b : ℤ)) : ℤθˣ) : ℤθ) = ⟨3 * c1 + 1, 3 * c2, 3 * c3⟩ :=
+    have s : ((unit ^ ((3 : ℤ) * -(b : ℤ)) : ℤθˣ) : ℤθ) = ⟨3 * c1 + 1, 3 * c2, 3 * c3⟩ :=
       by
       ext <;> dsimp
       exact hc1; exact hc2; exact hc3
@@ -546,7 +546,7 @@ theorem unit_zpow_one_mod_three :
   by
   intro k
   have w :
-    ((Unit ^ (3 * k + 1) : ℤθˣ) : ℤθ) = ((Unit ^ (3 * k) : ℤθˣ) : ℤθ) * ((Unit ^ 1 : ℤθˣ) : ℤθ) :=
+    ((unit ^ (3 * k + 1) : ℤθˣ) : ℤθ) = ((unit ^ (3 * k) : ℤθˣ) : ℤθ) * ((unit ^ 1 : ℤθˣ) : ℤθ) :=
     by
     rw [zpow_add]
     norm_cast
@@ -554,21 +554,21 @@ theorem unit_zpow_one_mod_three :
   specialize g k
   cases' g with g1 g23
   cases' g23 with g2 g3
-  have t1 := y_mod_three ((Unit ^ (3 * k) : ℤθˣ) : ℤθ).f 1 g1
+  have t1 := y_mod_three ((unit ^ (3 * k) : ℤθˣ) : ℤθ).f 1 g1
   cases' t1 with j1 hj1
-  have t2 := y_mod_three ((Unit ^ (3 * k) : ℤθˣ) : ℤθ).g 0 g2
+  have t2 := y_mod_three ((unit ^ (3 * k) : ℤθˣ) : ℤθ).g 0 g2
   cases' t2 with j2 hj2
   rw [add_zero] at hj2
-  have t3 := y_mod_three ((Unit ^ (3 * k) : ℤθˣ) : ℤθ).h 0 g3
+  have t3 := y_mod_three ((unit ^ (3 * k) : ℤθˣ) : ℤθ).h 0 g3
   cases' t3 with j3 hj3
   rw [add_zero] at hj3
-  have s : ((Unit ^ (3 * k) : ℤθˣ) : ℤθ) = ⟨3 * j1 + 1, 3 * j2, 3 * j3⟩ :=
+  have s : ((unit ^ (3 * k) : ℤθˣ) : ℤθ) = ⟨3 * j1 + 1, 3 * j2, 3 * j3⟩ :=
     by
     ext <;> dsimp
     exact hj1; exact hj2; exact hj3
   clear g1 g2 g3 hj1 hj2 hj3
   rw [s] at w ; rw [pow_one] at w ; rw [unit_l] at w
-  rw [mul_mule_3] at w ; dsimp at w ; ring_nf at w
+  rw [hMul_mule_3] at w ; dsimp at w ; ring_nf at w
   rw [ext_iff] at w
   dsimp at w
   cases' w with w1 w23
@@ -596,7 +596,7 @@ theorem unit_zpow_two_mod_three :
   by
   intro k
   have w :
-    ((Unit ^ (3 * k + 2) : ℤθˣ) : ℤθ) = ((Unit ^ (3 * k) : ℤθˣ) : ℤθ) * ((Unit ^ 2 : ℤθˣ) : ℤθ) :=
+    ((unit ^ (3 * k + 2) : ℤθˣ) : ℤθ) = ((unit ^ (3 * k) : ℤθˣ) : ℤθ) * ((unit ^ 2 : ℤθˣ) : ℤθ) :=
     by
     rw [zpow_add]
     norm_cast
@@ -604,15 +604,15 @@ theorem unit_zpow_two_mod_three :
   specialize g k
   cases' g with g1 g23
   cases' g23 with g2 g3
-  have t1 := y_mod_three ((Unit ^ (3 * k) : ℤθˣ) : ℤθ).f 1 g1
+  have t1 := y_mod_three ((unit ^ (3 * k) : ℤθˣ) : ℤθ).f 1 g1
   cases' t1 with j1 hj1
-  have t2 := y_mod_three ((Unit ^ (3 * k) : ℤθˣ) : ℤθ).g 0 g2
+  have t2 := y_mod_three ((unit ^ (3 * k) : ℤθˣ) : ℤθ).g 0 g2
   cases' t2 with j2 hj2
   rw [add_zero] at hj2
-  have t3 := y_mod_three ((Unit ^ (3 * k) : ℤθˣ) : ℤθ).h 0 g3
+  have t3 := y_mod_three ((unit ^ (3 * k) : ℤθˣ) : ℤθ).h 0 g3
   cases' t3 with j3 hj3
   rw [add_zero] at hj3
-  have s : ((Unit ^ (3 * k) : ℤθˣ) : ℤθ) = ⟨3 * j1 + 1, 3 * j2, 3 * j3⟩ :=
+  have s : ((unit ^ (3 * k) : ℤθˣ) : ℤθ) = ⟨3 * j1 + 1, 3 * j2, 3 * j3⟩ :=
     by
     ext <;> dsimp
     exact hj1; exact hj2; exact hj3
@@ -892,8 +892,8 @@ theorem unit_pow_three_pow_1 (n : ℕ) :
     rw [pow_one]; rw [pow_one]
     change
       ∃ a b c : ℤ,
-        ((Unit : ℤθ) ^ 3).f = 1 + 3 + 3 ^ 2 * a ∧
-          ((Unit : ℤθ) ^ 3).g = 3 ^ 2 * b ∧ ((Unit : ℤθ) ^ 3).h = 3 + 3 ^ 2 * c
+        ((unit : ℤθ) ^ 3).f = 1 + 3 + 3 ^ 2 * a ∧
+          ((unit : ℤθ) ^ 3).g = 3 ^ 2 * b ∧ ((unit : ℤθ) ^ 3).h = 3 + 3 ^ 2 * c
     rw [unit_cubed]; dsimp
     use-3; use-7; use-2; norm_num
   have l : k + 1 = k.succ := by rfl
@@ -901,7 +901,7 @@ theorem unit_pow_three_pow_1 (n : ℕ) :
   cases' hk with p hp; cases' hp with q hq; cases' hq with r hr; cases' hr with h1 h23;
   cases' h23 with h2 h3
   have t :
-    (Unit ^ 3 ^ k.succ : ℤθ) =
+    (unit ^ 3 ^ k.succ : ℤθ) =
       ⟨1 + 3 ^ k.succ + 3 ^ (k.succ + 1) * p, 3 ^ (k.succ + 1) * q,
         3 ^ k.succ + 3 ^ (k.succ + 1) * r⟩ :=
     by
@@ -923,7 +923,7 @@ theorem unit_pow_three_pow_1 (n : ℕ) :
     have e3 : 3 ^ 3 = 27 := by norm_num
     rw [e1]; rw [e2]
     --why doesn't rw [e1, e2, e3] work at the start?
-    have t : ((Unit ^ 9 : ℤθˣ) : ℤθ) = (Unit : ℤθ) ^ 9 := by norm_cast
+    have t : ((unit ^ 9 : ℤθˣ) : ℤθ) = (unit : ℤθ) ^ 9 := by norm_cast
     rw [t]; rw [unit_pow_nine]; dsimp
     use-4209; use-9297; use 2778
     norm_num
