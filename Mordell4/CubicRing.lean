@@ -134,10 +134,7 @@ theorem my_mul_assoc : mul (mul a b) c = mul a (mul b c) :=
   by
   cases a; cases b; cases c
   simp only [mul]
-  constructor
   ring
-  constructor
-  ring; ring
 
 theorem my_one_mul : mul one a = a := by
   cases a
@@ -151,27 +148,18 @@ theorem my_left_distrib : mul a (add b c) = add (mul a b) (mul a c) :=
   by
   cases a; cases b; cases c
   simp only [mul, add]
-  constructor
   ring
-  constructor
-  ring; ring
 
 theorem my_right_distrib : mul (add a b) c = add (mul a c) (mul b c) :=
   by
   cases a; cases b; cases c
   simp only [mul, add]
-  constructor
   ring
-  constructor
-  ring; ring
 
 theorem my_mul_comm : mul a b = mul b a := by
   cases a; cases b
   simp only [mul]
-  constructor
   ring
-  constructor
-  ring; ring
 
 def zsmul : ℤ → ℤθ → ℤθ := fun n a => ⟨n * a.f, n * a.g, n * a.h⟩
 
@@ -224,11 +212,7 @@ def intCast : ℤ → ℤθ := fun a => ⟨a, 0, 0⟩
 
 def natCast : ℕ → ℤθ := fun a => ⟨a, 0, 0⟩
 
-theorem my_natCast_zero : natCast 0 = zero :=
-  by
-  unfold nat_cast
-  rw [Int.ofNat_zero]
-  rfl
+theorem my_natCast_zero : natCast 0 = zero := by rfl
 
 theorem my_natCast_succ : ∀ n : ℕ, natCast (n + 1) = (natCast n).add one :=
   by
