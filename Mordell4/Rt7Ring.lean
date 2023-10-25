@@ -396,10 +396,16 @@ def norm : ℤα → ℤ := fun z => z.z ^ 2 + z.z * z.w + 2 * z.w ^ 2
 theorem normSq_coe : normSq a = (norm a : ℝ) :=
   by
   cases' a with x y
-  simp [normSq, Norm]
+  simp [normSq, norm]
   ring_nf
-  simp only [re_of_coe, im_of_coe]
+  norm_cast
+  rw [inclusion]; simp only [RingHom.coe_mk, MonoidHom.coe_mk, OneHom.coe_mk, cast_add, cast_mul,
+    cast_pow, int_cast_ofNat,toℂ]--,re_of_coe]
+  simp only [complexα,re_of_coe, im_of_coe]
   ring_nf
+  norm_num
+  rw [pow_two]
+  ring
   rw [rt7_sq]
   ring_nf
 
@@ -412,7 +418,6 @@ theorem natNorm_coe : normSq (a : ℂ) = (natNorm a : ℝ) :=
   suffices h : a.norm = a.norm.natAbs
   congr
   norm_cast
-  refine (_root_.abs_of_nonneg ?h.h).symm
   exact this
   refine' eq_nat_abs_of_zero_le _
   suffices : 0 ≤ normSq a
@@ -500,9 +505,12 @@ theorem im_sub_nearest (z : ℂ) : (z - nearestℤα z).im ^ 2 ≤ (4⁻¹ * rt7
   rw [sq_le_sq]
   cases' z with x y
   unfold nearestℤα
-  dsimp
-  simp only [coe_of_mk]; clear x
-  have := sub_hMul_round y (_ : 2⁻¹ * rt7 > 0)
+  dsimp; rw [inclusion];
+  simp only [RingHom.coe_mk, MonoidHom.coe_mk, OneHom.coe_mk,toℂ,complexα]
+  norm_num
+  simp only [one_div]
+--  simp only [coe_of_mk]; clear x
+  have := sub_hMul_round y (by norm_num : 2⁻¹ * rt7 > 0)
   rw [mul_comm] at this
   have arith : 2⁻¹ * (2⁻¹ * rt7) = |4⁻¹ * rt7| :=
     by
@@ -523,11 +531,13 @@ theorem re_sub_nearest (z : ℂ) : (z - nearestℤα z).re ^ 2 ≤ 2⁻¹ ^ 2 :=
   cases' z with x y
   unfold nearestℤα
   dsimp
-  simp only [coe_of_mk]
+  rw [inclusion];
+  simp only [RingHom.coe_mk, MonoidHom.coe_mk, OneHom.coe_mk]
   ring_nf
-  rw [add_sub]
-  have : |(1 / 2 : ℝ)| = 1 / 2 := by
+--  rw [add_sub]
+  have : |(1 / 2 : ℝ)| = 1 / 2 := by norm_num
     simp only [one_div, abs_eq_self, inv_nonneg, zero_le_bit0, zero_le_one]
+    nor
   rw [this]
   exact abs_sub_round _
 
