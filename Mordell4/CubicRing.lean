@@ -185,7 +185,7 @@ theorem my_zsmul_succ' :
   constructor
   linarith; linarith
 
-theorem my_zsmul_neg' : ∀ (n : ℕ) (a : ℤθ), zsmul -[n+1] a = (zsmul (↑n.succ) a).neg :=
+theorem my_zsmul_neg' : ∀ (n : ℕ) (a : ℤθ), zsmul (Int.negSucc n) a = (zsmul (↑n.succ) a).neg :=
   by
   intro n a
   simp
@@ -197,16 +197,16 @@ theorem my_zsmul_neg' : ∀ (n : ℕ) (a : ℤθ), zsmul -[n+1] a = (zsmul (↑n
   rw [Int.negSucc_coe]
   rw [Int.neg_mul_eq_neg_mul_symm]
   rw [Int.ofNat_add]
-  rwa [Int.ofNat_one]
+  rw [Int.ofNat_one]
   constructor
   rw [Int.negSucc_coe]
   rw [Int.neg_mul_eq_neg_mul_symm]
   rw [Int.ofNat_add]
-  rwa [Int.ofNat_one]
+  rw [Int.ofNat_one]
   rw [Int.negSucc_coe]
   rw [Int.neg_mul_eq_neg_mul_symm]
   rw [Int.ofNat_add]
-  rwa [Int.ofNat_one]
+  rw [Int.ofNat_one]
 
 def intCast : ℤ → ℤθ := fun a => ⟨a, 0, 0⟩
 
