@@ -279,7 +279,7 @@ def norm : ℤθ → ℤ := fun k =>
           24 * k.f * k.h ^ 2 -
         12 * k.g * k.h ^ 2 -
       12 * k.f * k.g * k.h|
-
+@[reducible]
 def unit : ℤθˣ :=
   ⟨-1 - 3 * θ - θ ^ 2, 25 + 13 * θ + 5 * θ ^ 2, by ext <;> decide, by ext <;> decide⟩
 
@@ -349,46 +349,27 @@ theorem unit_sq : ((unit ^ 2 : ℤθˣ) : ℤθ) = ⟨-5, -14, -4⟩ :=
 
 theorem unit_cubed : (unit : ℤθ) ^ 3 = ⟨-23, -63, -15⟩ :=
   by
-  rw [pow_three]
-  nth_rw 2 [unit_l]; nth_rw 2 [unit_l]
-  nth_rw 2 [mul_mule_3]
-  dsimp; ring_nf
+  rw [unit_l, pow_three, hMul_mule_3]
+  norm_num
 
 theorem unit_inv_cubed : ((unit ^ (-3 : ℤ) : ℤθˣ) : ℤθ) = ⟨10591, 5553, 2139⟩ :=
-  by
-  rw [← mul_neg_one]
-  rw [mul_comm]; rw [zpow_mul]
-  have q : (3 : ℤ) = 2 + 1 := by decide
-  nth_rw 1 [q]; rw [zpow_add]; rw [zpow_one]; rw [zpow_two]
-  rw [mul_assoc]
-  --how did that work?
-  change
-    ((unit ^ (-1 : ℤ) : ℤθˣ) : ℤθ) * ((unit ^ (-1 : ℤ) : ℤθˣ) * (unit ^ (-1 : ℤ) : ℤθˣ) : ℤθ) =
-      ⟨10591, 5553, 2139⟩
-  rw [unit_neg_1]
-  nth_rw 2 [mul_mule_3]
-  dsimp; norm_num
-  rw [mul_mule_3]
-  dsimp; norm_num
+by
+  norm_cast
 
 theorem unit_pow_zero :
     ((unit ^ (3 * 0) : ℤθˣ) : ℤθ).f % 3 = 1 ∧
       ((unit ^ (3 * 0) : ℤθˣ) : ℤθ).g % 3 = 0 ∧ ((unit ^ (3 * 0) : ℤθˣ) : ℤθ).h % 3 = 0 :=
   by
-  constructor
-  rfl
-  constructor
-  rfl; rfl
+    norm_cast
 
 theorem unit_pow_one :
     ((unit ^ 1 : ℤθˣ) : ℤθ).f % 3 = 2 ∧
       ((unit ^ 1 : ℤθˣ) : ℤθ).g % 3 = 0 ∧ ((unit ^ 1 : ℤθˣ) : ℤθ).h % 3 = 2 :=
-  by
-  constructor
-  rfl
-  constructor
-  rfl; rfl
-#check ℤθ.ext_iff
+by
+  norm_cast
+
+set_option maxHeartbeats 1000000
+
 theorem unit_pow_zero_mod_three :
     ∀ k : ℕ,
       (((unit ^ (3 * (k : ℤ)) : ℤθˣ) : ℤθ).f % 3 = 1 ∧
@@ -405,21 +386,21 @@ theorem unit_pow_zero_mod_three :
     cases' hb with h1 h23
     cases' h23 with h2 h3
     have p : b.succ = b + 1 := by rfl
-    repeat' rw [p]
-    have w : (unit ^ (3 * (b + 1)) : ℤθ) = (unit ^ (3 * b) : ℤθ) * ((unit:ℤθ) ^ 3 : ℤθ) := by
+    rw [p]
+    norm_cast
+    have w : (unit ^ (3 * (b + 1)) : ℤθ) = (unit ^ (3 * b) : ℤθ) * ((unit:ℤθ) ^ 3 : ℤθ) :=
+    by
+      norm_cast
       rw [mul_add, mul_one, pow_add]
-    have t1 : ((unit : ℤθ) ^ (3 * b)).f % 3 = 1 :=
+    have t1 : ((unit ) ^ (3 * b):ℤθ).f % 3 = 1 :=
       by
-      norm_cast
---      exact h1
-    have t2 : ((unit : ℤθ) ^ (3 * b)).g % 3 = 0 :=
+        norm_cast
+    have t2 : ((unit) ^ (3 * b) : ℤθ).g % 3 = 0 :=
       by
-      norm_cast
-  --    exact h2
-    have t3 : ((unit : ℤθ) ^ (3 * b)).h % 3 = 0 :=
+        norm_cast
+    have t3 : ((unit ) ^ (3 * b): ℤθ).h % 3 = 0 :=
       by
-      norm_cast
-  --    exact h3
+        norm_cast
     have r1 := y_mod_three (unit ^ (3 * b) : ℤθ).f 1 t1
     cases' r1 with c1 hc1
     have r2 := y_mod_three (unit ^ (3 * b) : ℤθ).g 0 t2
@@ -433,35 +414,60 @@ theorem unit_pow_zero_mod_three :
       ext <;> dsimp
       exact hc1; exact hc2; exact hc3
     -- just the same as w?
-    have s1 : (unit ^ (3 * (b + 1)) : ℤθ) = (unit ^ (3 * b) : ℤθ) * ((unit:ℤθ) ^ 3 : ℤθ) :=
-      by
-      norm_cast
-      rw [← pow_add]
-      rw [mul_add, mul_one]
-    rw [s] at s1 ; rw [unit_cubed] at s1
-    rw [hMul_mule_3] at s1 ; dsimp at s1 ; ring_nf at s1
-    rw [ℤθ.ext_iff] at s1 ;
-    dsimp at s1
-    norm_cast at s1
-    cases' s1 with f1 f23
-    cases' f23 with f2 f3
-    norm_cast
-    rw [mul_add]; rw [mul_one]
-    rw [f1, f2, f3]
+    -- have s1 : (unit ^ (3 * (b + 1)) : ℤθ) = (unit ^ (3 * b) : ℤθ) * ((unit:ℤθ) ^ 3 : ℤθ) :=
+    -- by
+    --   norm_cast
+    --   rw [← pow_add]
+    --   rw [mul_add, mul_one]
+    rw [s] at w ; rw [unit_cubed] at w
+    rw [hMul_mule_3] at w ; dsimp at w ; ring_nf at w
+    rw [ℤθ.ext_iff] at w ;
+    dsimp at w
+--    norm_cast at w
+    have : 3 + b*3 = 3*(b+1):= by ring
+    rw [this] at w
+    obtain ⟨f1,f2,f3⟩:=w
+    apply_fun (fun x => x%3) at f1 f2 f3
+    rw [f1,f2,f3]
+--    apply_fun (fun x => x%3) at f3
+    -- rw [mul_add 3 b 1]; rw [mul_one]
+    -- rw [add_comm,mul_comm b] at f1 f2 f3
     constructor
-    · rw [Int.add_emod]; rw [← neg_mul]; rw [Int.mul_emod]
+    · norm_num; rw [Int.add_emod,Int.add_emod _ (c3*108),Int.sub_emod, Int.mul_emod _ 69,Int.mul_emod _ 108,Int.mul_emod _ 90];
+      norm_num;
+      have : (69:ℤ) %3 = 0:=by norm_num
+      rw [this]
+      have : (108:ℤ) %3 = 0:=by norm_num
+      rw [this]
+      have : (90:ℤ) %3 = 0:=by norm_num
+      rw [this]
       norm_num
-      rw [Int.add_emod]; rw [Int.mul_emod]
-      norm_num
-      rw [Int.sub_emod]; rw [Int.mul_emod]
-      norm_num
-    constructor
-    · norm_num
-      use-(63 * c1) + (138 * c3 + (67 * c2 - 21))
-      ring_nf
-    · norm_num
-      use-(15 * c1) + (121 * c3 + (-(18 * c2) - 5))
-      ring_nf
+
+
+    · constructor
+      ·
+        sorry
+      ·
+        sorry
+
+    -- constructor
+    -- ·
+    --   norm_num
+    --   rw [Int.add_emod]; --rw [← neg_mul];
+    --   rw [Int.mul_emod]
+    --   norm_num
+    --   rw [Int.add_emod]; rw [Int.mul_emod]
+    --   norm_num
+    --   rw [Int.sub_emod]; rw [Int.mul_emod]
+    --   norm_num
+    -- constructor
+    -- · norm_num
+    --   use-(63 * c1) + (138 * c3 + (67 * c2 - 21))
+    --   ring_nf
+    -- · norm_num
+    --   use-(15 * c1) + (121 * c3 + (-(18 * c2) - 5))
+    --   ring_nf
+
   · induction' k with b hb
     · rw [Int.ofNat_zero, neg_zero, MulZeroClass.mul_zero]
       exact unit_pow_zero
@@ -571,7 +577,7 @@ theorem unit_zpow_one_mod_three :
   clear g1 g2 g3 hj1 hj2 hj3
   rw [s] at w ; rw [pow_one] at w ; rw [unit_l] at w
   rw [hMul_mule_3] at w ; dsimp at w ; ring_nf at w
-  rw [ext_iff] at w
+  rw [ℤθ.ext_iff] at w
   dsimp at w
   cases' w with w1 w23
   cases' w23 with w2 w3
