@@ -429,12 +429,8 @@ theorem unit_pow_zero_mod_three :
     obtain ⟨f1,f2,f3⟩:=w
     apply_fun (fun x => x%3) at f1 f2 f3
     rw [f1,f2,f3]
---    apply_fun (fun x => x%3) at f3
-    -- rw [mul_add 3 b 1]; rw [mul_one]
-    -- rw [add_comm,mul_comm b] at f1 f2 f3
     constructor
-    · norm_num; rw [Int.add_emod,Int.add_emod _ (c3*108),Int.sub_emod, Int.mul_emod _ 69,Int.mul_emod _ 108,Int.mul_emod _ 90];
-      norm_num;
+    · rw [Int.add_emod,Int.add_emod _ (c3*108),Int.sub_emod, Int.mul_emod _ 69,Int.mul_emod _ 108,Int.mul_emod _ 90];
       have : (69:ℤ) %3 = 0:=by norm_num
       rw [this]
       have : (108:ℤ) %3 = 0:=by norm_num
@@ -445,10 +441,20 @@ theorem unit_pow_zero_mod_three :
 
 
     · constructor
-      ·
-        sorry
-      ·
-        sorry
+      · rw [Int.add_emod,Int.add_emod _ (c3*414),Int.sub_emod, Int.mul_emod _ 189,Int.mul_emod _ 414,Int.mul_emod _ 201]
+        have : (189:ℤ) %3 = 0:=by norm_num
+        rw [this]
+        have : (414:ℤ) %3 = 0:=by norm_num
+        rw [this]
+        have : (201:ℤ) %3 = 0:=by norm_num
+        rw [this]; norm_num
+      · rw [Int.add_emod,Int.sub_emod,Int.sub_emod (c3*363), Int.mul_emod _ 363,Int.mul_emod _ 54,Int.mul_emod _ 45]
+        have : (45:ℤ) %3 = 0:=by norm_num
+        rw [this]
+        have : (363:ℤ) %3 = 0:=by norm_num
+        rw [this]
+        have : (54:ℤ) %3 = 0:=by norm_num
+        rw [this]; norm_num
 
     -- constructor
     -- ·
@@ -496,8 +502,8 @@ theorem unit_pow_zero_mod_three :
       ext <;> dsimp
       exact hc1; exact hc2; exact hc3
     rw [s] at w ; rw [unit_inv_cubed] at w
-    rw [mul_mule_3] at w ; dsimp at w ; ring_nf at w
-    rw [ext_iff] at w ; dsimp at w
+    rw [hMul_mule_3] at w ; dsimp at w ; ring_nf at w
+    rw [ℤθ.ext_iff] at w ; dsimp at w
     cases' w with w1 w23
     cases' w23 with w2 w3
     have j : -(3 * (b : ℤ)) - 3 = 3 * -(b + 1 : ℤ) :=
