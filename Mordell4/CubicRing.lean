@@ -507,14 +507,12 @@ theorem unit_pow_zero_mod_three :
     cases' w with w1 w23
     cases' w23 with w2 w3
     have j : -(3 * (b : ℤ)) - 3 = 3 * -(b + 1 : ℤ) :=
-      by
-      rw [mul_comm]
-      rw [← neg_mul]
-      rw [mul_comm]
-      rw [sub_eq_add_neg]
-      nth_rw 2 [← mul_neg_one]
-      rw [← mul_add]
-      rw [← neg_add]
+      by ring
+      -- rw [mul_comm]
+      -- rw [← neg_mul]
+      -- rw [mul_comm]
+      -- rw [sub_eq_add_neg,neg_add]
+      -- ring
     have j1 : (b : ℤ) + 1 = ((b + 1 : ℕ) : ℤ) := by norm_cast
     rw [j1] at j
     rw [j] at w1 ; rw [j] at w2 ; rw [j] at w3
@@ -587,9 +585,9 @@ theorem unit_zpow_one_mod_three :
   dsimp at w
   cases' w with w1 w23
   cases' w23 with w2 w3
-  rw [w1, w2, w3]
+  rw [add_comm, mul_comm, w1, w2, w3]
   constructor
-  · rw [Int.add_emod]; rw [← neg_mul]; rw [Int.mul_emod]
+  · rw [Int.add_emod,Int.sub_emod]; rw [← neg_mul]; rw [Int.mul_emod]
     norm_num
     rw [Int.sub_emod]; rw [Int.mul_emod]
     norm_num
