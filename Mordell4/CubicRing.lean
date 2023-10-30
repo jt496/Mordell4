@@ -615,7 +615,7 @@ theorem unit_zpow_two_mod_three :
     ∀ k : ℤ,
       ((unit ^ (3 * k + 2) : ℤθˣ) : ℤθ).f % 3 = 1 ∧
         ((unit ^ (3 * k + 2) : ℤθˣ) : ℤθ).g % 3 = 1 ∧ ((unit ^ (3 * k + 2) : ℤθˣ) : ℤθ).h % 3 = 2 :=
-  by
+by
   intro k
   have w :
     ((unit ^ (3 * k + 2) : ℤθˣ) : ℤθ) = ((unit ^ (3 * k) : ℤθˣ) : ℤθ) * ((unit ^ 2 : ℤθˣ) : ℤθ) :=
@@ -663,6 +663,14 @@ theorem unit_zpow_two_mod_three :
     rw [this]
     have : (57:ℤ) %3 =0 :=by norm_num
     rw [this]; norm_num
+  · rw [Int.add_emod, Int.sub_emod,Int.sub_emod (j3*75),Int.mul_emod j1,Int.mul_emod j2,Int.mul_emod j3];
+    have : (12:ℤ) %3 =0 :=by norm_num
+    rw [this]
+    have : (75:ℤ) %3 =0 :=by norm_num
+    rw [this]
+    have : (6:ℤ) %3 =0 :=by norm_num
+    rw [this]; norm_num
+
 
 --the below should definitely be simplified!
 theorem hMul_three_pow_dvd (n : ℕ) (j : 1 ≤ n) : ∃ a : ℕ, 3 ^ a ∣ 3 * n ∧ ¬3 ^ (a + 1) ∣ 3 * n :=
@@ -674,10 +682,9 @@ theorem hMul_three_pow_dvd (n : ℕ) (j : 1 ≤ n) : ∃ a : ℕ, 3 ^ a ∣ 3 * 
     intro g
     specialize h g
     push_neg at h
-    -- rw [PushNeg.not_and_distrib_eq] at h
-    -- rw [PushNeg.not_not_eq] at h
-
-    exact h
+    by_cases h2: 3 ^ g ∣ 3*n
+    right; exact h h2
+    left; exact h2
   clear h
   have s : ∀ x : ℕ, ¬3 ^ x ∣ 3 * n ∧ ¬3 ^ (x + 1) ∣ 3 * n ∨ 3 ^ x ∣ 3 * n ∧ 3 ^ (x + 1) ∣ 3 * n :=
     by
@@ -686,22 +693,21 @@ theorem hMul_three_pow_dvd (n : ℕ) (j : 1 ≤ n) : ∃ a : ℕ, 3 ^ a ∣ 3 * 
     cases' r with r1 r2
     · left
       constructor; exact r1
-      by_contra
+      by_contra h
       change ∃ l : ℕ, 3 * n = 3 ^ (g + 1) * l at h
       cases' h with k hk
       rw [pow_add, pow_one, mul_assoc] at hk
       have f : 3 ^ g ∣ 3 * n := by
         use 3 * k
-        exact hk
       have s : 3 ^ g ∣ 3 * n ∧ ¬3 ^ g ∣ 3 * n := by constructor; exact f; exact r1
-      simp at s ; exact s
+      simp at s ;
     right
     constructor
     change ∃ l : ℕ, 3 * n = 3 ^ (g + 1) * l at r2
     cases' r2 with k hk
     rw [pow_add, pow_one, mul_assoc] at hk
     use 3 * k
-    exact hk; exact r2
+    exact r2
   clear r
   have t : ∀ f : ℕ, 3 ^ f ∣ 3 * n := by
     intro g
@@ -712,7 +718,7 @@ theorem hMul_three_pow_dvd (n : ℕ) (j : 1 ≤ n) : ∃ a : ℕ, 3 ^ a ∣ 3 * 
     · exfalso
       cases' s1 with s3 s4
       have t : 3 ^ k ∣ 3 * n ∧ ¬3 ^ k ∣ 3 * n := by constructor; exact hk; exact s3
-      simp at t ; exact t
+      simp at t ;
     cases' s2 with s5 s6
     exact s6
   specialize t (n + 1)
@@ -722,9 +728,10 @@ theorem hMul_three_pow_dvd (n : ℕ) (j : 1 ≤ n) : ∃ a : ℕ, 3 ^ a ∣ 3 * 
     norm_num
     change 3 ^ (k + 1 + 1) > 3 * (k + 1)
     have ss : k = 0 ∨ 0 < k := Nat.eq_zero_or_pos k
-    cases ss; rw [ss]; norm_num
-    rw [pow_add]; rw [pow_one]; rw [mul_comm]
-    simp
+    cases ss with
+    | inl ss =>
+    rw [ss]; norm_num
+    | inr ss =>
     change 1 ≤ k at ss
     have b : k < 2 * k := by
       change 0 < k at ss
@@ -737,24 +744,30 @@ theorem hMul_three_pow_dvd (n : ℕ) (j : 1 ≤ n) : ∃ a : ℕ, 3 ^ a ∣ 3 * 
       norm_num at finall
       exact finall
     have q2 := lt_trans q1 hk
-    exact q2
+    rw [pow_succ]
+    apply (mul_lt_mul_left zero_lt_three  ).2 q2
   specialize q n
   have r : ¬3 ^ (n + 1) ∣ 3 * n := by
-    clear t; by_contra
+    clear t; by_contra h
     change ∃ l : ℕ, 3 * n = 3 ^ (n + 1) * l at h
     cases' h with p hp
     rw [hp] at q
     have ss : p = 0 ∨ 0 < p := Nat.eq_zero_or_pos p
-    cases ss
+    cases ss with
+    | inl ss =>
     rw [ss] at hp ; norm_num at hp ; rw [hp] at j ; norm_num at j
+    | inr ss =>
     simp at q ; rw [q] at ss ; norm_num at ss
-  have w : 3 ^ (n + 1) ∣ 3 * n ∧ ¬3 ^ (n + 1) ∣ 3 * n := by constructor; exact t; exact r
-  simp at w ; exact w
+  have w : 3 ^ (n + 1) ∣ 3 * n ∧ ¬3 ^ (n + 1) ∣ 3 * n :=
+  by constructor; exact t; exact r
+  simp at w
+
+
 
 theorem rep_mod_three (n : ℕ) : ∃ a : ℕ, n = 3 * a ∨ n = 3 * a + 1 ∨ n = 3 * a + 2 :=
   by
   induction' n with k hk
-  use 0; left; rw [MulZeroClass.mul_zero]
+  use 0; left; rw [MulZeroClass.mul_zero]; rfl
   cases' hk with j hj; cases' hj with h1 h23
   use j; right; left
   change k + 1 = 3 * j + 1; rw [add_left_inj 1]; exact h1
@@ -773,15 +786,15 @@ theorem rep_mod_three (n : ℕ) : ∃ a : ℕ, n = 3 * a ∨ n = 3 * a + 1 ∨ n
 theorem hMul_three_expansion (n : ℕ) (h : 1 ≤ n) :
     ∃ (a : ℕ) (b : ℤ),
       1 ≤ a ∧ (3 * (n : ℤ) = 3 ^ a * (3 * b + 1) ∨ 3 * (n : ℤ) = 3 ^ a * (3 * b + 2)) :=
-  by
-  have q := mul_three_pow_dvd n h
+by
+  have q := hMul_three_pow_dvd n h
   cases' q with k hk; cases' hk with h1 h2
   have ss : k = 0 ∨ 0 < k := Nat.eq_zero_or_pos k
   cases' ss with s1 s2
   rw [s1, zero_add, pow_one] at h2 ; exfalso
   have p : 3 ∣ 3 * n := by use n
   have contra : 3 ∣ 3 * n ∧ ¬3 ∣ 3 * n := by constructor; exact p; exact h2
-  simp at contra ; exact contra
+  simp at contra ;
   change 1 ≤ k at s2
   change ∃ l : ℕ, 3 * n = 3 ^ k * l at h1 ; cases' h1 with j hj
   have p := rep_mod_three j; cases' p with r hr
@@ -789,9 +802,9 @@ theorem hMul_three_expansion (n : ℕ) (h : 1 ≤ n) :
   · exfalso
     rw [t1] at hj ; rw [← mul_assoc] at hj
     nth_rw 3 [← pow_one 3] at hj ; rw [← pow_add] at hj
-    have g : 3 ^ (k + 1) ∣ 3 * n := by use r; exact hj
+    have g : 3 ^ (k + 1) ∣ 3 * n := by use r;
     have combine : 3 ^ (k + 1) ∣ 3 * n ∧ ¬3 ^ (k + 1) ∣ 3 * n := by constructor; exact g; exact h2
-    simp at combine ; exact combine
+    simp at combine ;
   cases' t23 with t2 t3
   · rw [t2] at hj
     use k; use r
@@ -804,7 +817,7 @@ theorem hMul_three_expansion (n : ℕ) (h : 1 ≤ n) :
 
 theorem zmul_three_expansion (n : ℤ) (h : n ≠ 0) :
     ∃ (a : ℕ) (b : ℤ), 1 ≤ a ∧ (3 * n = 3 ^ a * (3 * b + 1) ∨ 3 * n = 3 ^ a * (3 * b + 2)) :=
-  by
+by
   have p : n ≥ 0 ∨ n < 0 := by
     have w := lt_or_le 0 n
     cases' w with w1 w2
@@ -818,20 +831,18 @@ theorem zmul_three_expansion (n : ℤ) (h : n ≠ 0) :
   cases' p1 with p3 p4
   have t : n = 0 ∧ n ≠ 0 := by constructor; exact Eq.symm p3; exact h
   exfalso
-  simp at t ; exact t
+  simp at t ;
   have p5 : 1 ≤ Int.toNat n :=
     by
     have s := Nat.eq_zero_or_pos (Int.toNat n)
     cases' s with s1 s2
     exfalso
     simp at s1
-    rw [← PushNeg.not_lt_eq] at s1
-    have please : 0 < n ∧ ¬0 < n := by constructor; exact p4; exact s1
-    change 0 < n ∧ ¬0 < n at please
-    --OMG why?
-    · apply s1; exact p4
-    change 1 ≤ Int.toNat n at s2 ; exact s2
-  have r1 := mul_three_expansion (Int.toNat n) p5
+    push_neg at s1
+    apply lt_irrefl 0 (lt_of_lt_of_le p4 s1)
+--    rw [← PushNeg.not_lt_eq] at s1
+    exact s2
+  have r1 := hMul_three_expansion (Int.toNat n) p5
   cases' r1 with j hj; cases' hj with g hg; cases' hg with hg0 hg12
   use j; use g
   constructor; exact hg0
@@ -847,13 +858,10 @@ theorem zmul_three_expansion (n : ℤ) (h : n ≠ 0) :
     cases' s with s1 s2
     exfalso
     simp at s1
-    rw [← PushNeg.not_lt_eq] at s1
-    have please : n < 0 ∧ ¬n < 0 := by constructor; exact p2; exact s1
-    change n < 0 ∧ ¬n < 0 at please
-    --OMG why?
-    · apply s1; exact p2
-    change 1 ≤ Int.toNat (-n) at s2 ; exact s2
-  have r2 := mul_three_expansion (Int.toNat (-n)) p6
+    push_neg at s1;
+    apply lt_irrefl 0 (lt_of_le_of_lt  s1 p2)
+    exact s2
+  have r2 := hMul_three_expansion (Int.toNat (-n)) p6
   cases' r2 with j hj; cases' hj with g hg; cases' hg with hg0 hg12
   have coe_coe : -(Int.toNat (-n) : ℤ) = n :=
     by
@@ -867,40 +875,28 @@ theorem zmul_three_expansion (n : ℤ) (h : n ≠ 0) :
     right
     rw [← neg_inj] at hg1 ; rw [mul_comm] at hg1
     rw [← neg_mul] at hg1 ; rw [coe_coe] at hg1 ; rw [mul_comm] at hg1
-    nth_rw 2 [mul_comm] at hg1 ; rw [← neg_mul] at hg1 ; rw [neg_add] at hg1
-    rw [← sub_eq_add_neg] at hg1
-    nth_rw 3 [mul_comm] at hg1 ; rw [← neg_mul] at hg1 ; nth_rw 3 [mul_comm] at hg1
-    nth_rw 2 [mul_comm] at hg1
-    rw [neg_add]; nth_rw 2 [mul_add]; rw [mul_neg_one]
-    have really : -(3 : ℤ) + 2 = -1 := by norm_num
-    rw [add_assoc]; rw [really]; rw [← sub_eq_add_neg]
-    exact hg1
+    rw [hg1]
+    ring
   · use-(g + 1)
     constructor; exact hg0
     left
     rw [← neg_inj] at hg2 ; rw [mul_comm] at hg2
     rw [← neg_mul] at hg2 ; rw [coe_coe] at hg2 ; rw [mul_comm] at hg2
-    nth_rw 2 [mul_comm] at hg2 ; rw [← neg_mul] at hg2 ; rw [neg_add] at hg2
-    rw [← sub_eq_add_neg] at hg2
-    nth_rw 3 [mul_comm] at hg2 ; rw [← neg_mul] at hg2 ; nth_rw 3 [mul_comm] at hg2
-    nth_rw 2 [mul_comm] at hg2
-    rw [neg_add]; nth_rw 2 [mul_add]; rw [mul_neg_one]
-    have really : -(3 : ℤ) + 1 = -2 := by norm_num
-    rw [add_assoc]; rw [really]; rw [← sub_eq_add_neg]
-    exact hg2
+    rw [hg2]; ring
 
 theorem unit_pow_six : (unit : ℤθ) ^ 6 = ⟨-1901, -4842, -336⟩ :=
   by
-  have elem : 6 = 3 + 3 := by norm_num; rw [elem]; rw [pow_add]; rw [unit_cubed]
-  rw [mul_mule_3]; dsimp; ring_nf
-  constructor; rfl; constructor; rfl; rfl
+  have elem : 6 = 3 + 3 := by norm_num;
+  rw [elem]; rw [pow_add]; rw [unit_cubed]
+  rw [hMul_mule_3]; dsimp; ring_nf
 
 theorem unit_pow_nine : (unit : ℤθ) ^ 9 = ⟨-113633, -251019, 75015⟩ :=
   by
-  have elem : 9 = 3 + 3 + 3 := by norm_num; rw [elem]; rw [pow_add]
-  have elem1 : 3 + 3 = 6 := by norm_num; rw [elem1]; rw [unit_cubed]; rw [unit_pow_six]
-  rw [mul_mule_3]; dsimp; ring_nf
-  constructor; rfl; constructor; rfl; rfl
+  have elem : 9 = 3 + 3 + 3 := by norm_num;
+  rw [elem]; rw [pow_add]
+  have elem1 : 3 + 3 = 6 := by norm_num;
+  rw [elem1]; rw [unit_cubed]; rw [unit_pow_six]
+  rw [hMul_mule_3]; dsimp; ring_nf
 
 theorem unit_pow_three_pow_1 (n : ℕ) :
     ∃ a b c : ℤ,
@@ -909,7 +905,7 @@ theorem unit_pow_three_pow_1 (n : ℕ) :
           ((unit ^ 3 ^ (n + 1) : ℤθˣ) : ℤθ).h = 3 ^ (n + 1) + 3 ^ (n + 2) * c :=
   by
   induction' n with k hk
-  · rw [zero_add]; rw [zero_add]
+  · rw [Nat.zero_add]; rw [Nat.zero_add]
     rw [pow_one]; rw [pow_one]
     change
       ∃ a b c : ℤ,
@@ -932,15 +928,23 @@ theorem unit_pow_three_pow_1 (n : ℕ) :
   have lower : 1 ≤ k.succ := by rw [← l]; simp
   cases' g with g1 g2
   · have upper : k.succ < 2 :=
-      by
+    by
+      rw [← Nat.succ_le_succ_iff] at g1
+      exact g1
       --really? no better way?
-      have elem := eq_or_lt_of_le g1;
-      cases' elem with f1 f2; rw [f1]; norm_num
-      have kg : 2 ≥ 1 := by norm_num; have f3 := LT.lt.gt f2; have f4 := gt_of_ge_of_gt kg f3
-      have f5 := GT.gt.lt f4; exact f5
+    have elem := eq_or_lt_of_le g1;
+    cases' elem with f1 f2; rw [f1]; norm_num
+
+    sorry
+    have kg : 2 ≥ 1 := by norm_num;
+    have f3 := LT.lt.gt f2;
+    have f4 := gt_of_ge_of_gt kg f3
+    have f5 := GT.gt.lt f4;
+--    exact f5
     interval_cases using lower, upper
     rw [h]; rw [one_add_one_eq_two]
-    have e1 : 1 + 2 = 3 := by norm_num; have e2 : 3 ^ 2 = 9 := by norm_num;
+    have e1 : 1 + 2 = 3 := by norm_num;
+    have e2 : 3 ^ 2 = 9 := by norm_num;
     have e3 : 3 ^ 3 = 27 := by norm_num
     rw [e1]; rw [e2]
     --why doesn't rw [e1, e2, e3] work at the start?
@@ -951,11 +955,11 @@ theorem unit_pow_three_pow_1 (n : ℕ) :
   change k.succ ≥ 2 at g2 ; clear lower
   sorry
 
-example (a b c : ℤ) : (a : ℤθ) + θ * b + c * θ ^ 2 = ⟨a, b, c⟩ :=
-  by
-  ext
-  simp
-  rw [θ]
+-- example (a b c : ℤ) : (a : ℤθ) + θ * b + c * θ ^ 2 = ⟨a, b, c⟩ :=
+-- by
+--   ext
+--   simp
+--   rw [θ]
 
 #eval unit ^ 3
 
