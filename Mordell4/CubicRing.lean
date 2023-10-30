@@ -660,14 +660,16 @@ theorem unit_zpow_two_mod_three :
 --the below should definitely be simplified!
 theorem hMul_three_pow_dvd (n : ℕ) (j : 1 ≤ n) : ∃ a : ℕ, 3 ^ a ∣ 3 * n ∧ ¬3 ^ (a + 1) ∣ 3 * n :=
   by
-  by_contra
-  rw [PushNeg.not_exists_eq] at h
+  by_contra h
+  push_neg at h
   have r : ∀ x : ℕ, ¬3 ^ x ∣ 3 * n ∨ 3 ^ (x + 1) ∣ 3 * n :=
     by
     intro g
     specialize h g
-    rw [PushNeg.not_and_distrib_eq] at h
-    rw [PushNeg.not_not_eq] at h
+    push_neg at h
+    -- rw [PushNeg.not_and_distrib_eq] at h
+    -- rw [PushNeg.not_not_eq] at h
+
     exact h
   clear h
   have s : ∀ x : ℕ, ¬3 ^ x ∣ 3 * n ∧ ¬3 ^ (x + 1) ∣ 3 * n ∨ 3 ^ x ∣ 3 * n ∧ 3 ^ (x + 1) ∣ 3 * n :=
@@ -722,11 +724,11 @@ theorem hMul_three_pow_dvd (n : ℕ) (j : 1 ≤ n) : ∃ a : ℕ, 3 ^ a ∣ 3 * 
       exact lt_two_mul_self ss
     have q1 : k + 1 < 3 * k :=
       by
-      have finally := add_lt_add_of_lt_of_le b ss
-      nth_rw 3 [← one_mul k] at finally
-      rw [← right_distrib] at finally
-      norm_num at finally
-      exact finally
+      have finall := add_lt_add_of_lt_of_le b ss
+      nth_rw 3 [← one_mul k] at finall
+      rw [← right_distrib] at finall
+      norm_num at finall
+      exact finall
     have q2 := lt_trans q1 hk
     exact q2
   specialize q n
