@@ -506,22 +506,26 @@ theorem unit_pow_zero_mod_three :
     rw [ℤθ.ext_iff] at w ; dsimp at w
     cases' w with w1 w23
     cases' w23 with w2 w3
-    have j : -(3 * (b : ℤ)) - 3 = 3 * -(b + 1 : ℤ) :=
-      by ring
-      -- rw [mul_comm]
-      -- rw [← neg_mul]
-      -- rw [mul_comm]
-      -- rw [sub_eq_add_neg,neg_add]
-      -- ring
+    have j2: -3 - (b : ℤ)*3 = 3*(-(b+1):ℤ):= by ring
+
+    -- have j : -(3 * (b : ℤ)) - 3 = 3 * -(b + 1 : ℤ) :=
+    --   by ring
     have j1 : (b : ℤ) + 1 = ((b + 1 : ℕ) : ℤ) := by norm_cast
-    rw [j1] at j
-    rw [j] at w1 ; rw [j] at w2 ; rw [j] at w3
+    rw [j1] at j2
+    rw [j2] at w1 ; rw [j2] at w2 ; rw [j2] at w3
     rw [w1, w2, w3]
-    clear h1 h2 h3 p hc1 hc2 hc3 w1 w2 w3 s j j1
+    clear h1 h2 h3 p hc1 hc2 hc3 w1 w2 w3 s j2 j1
     constructor
-    · rw [Int.add_emod]; rw [Int.mul_emod]; norm_num
-      rw [Int.add_emod]; rw [Int.mul_emod]; norm_num
-      rw [Int.add_emod]; rw [← neg_mul]; rw [Int.mul_emod]; norm_num
+    · rw [Int.add_emod ,Int.add_emod 10591, Int.sub_emod]; rw [Int.mul_emod c1];
+      rw [Int.mul_emod c3,Int.mul_emod c2];
+      have : (10591:ℤ) %3 = 1 :=by norm_num
+      rw [this]
+      have : (31773:ℤ) %3 =0 :=by norm_num
+      rw [this]
+      have : (5184:ℤ) %3 =0 :=by norm_num
+      rw [this]
+      have : (12834:ℤ) %3 =0 :=by norm_num
+      rw [this]; norm_num
     constructor
     · norm_num
       use 5553 * c1 + (906 * c3 + (-(2243 * c2) + 1851))
