@@ -591,18 +591,24 @@ theorem unit_zpow_one_mod_three :
   cases' w23 with w2 w3
   rw [add_comm, mul_comm, w1, w2, w3]
   constructor
-  · rw [Int.add_emod,Int.sub_emod]; rw [← neg_mul]; rw [Int.mul_emod]
+  · rw [Int.add_emod,Int.sub_emod, Int.mul_emod j1,Int.mul_emod j2];
     norm_num
-    rw [Int.sub_emod]; rw [Int.mul_emod]
-    norm_num
+    have : (6 : ℤ)%3 = 0:=by norm_num
+    rw [this]; norm_num
   constructor
-  · rw [Int.add_emod]; rw [← neg_mul]; rw [Int.mul_emod]
+  · rw [Int.add_emod,Int.add_emod _ (j3*6),Int.sub_emod,Int.mul_emod j1,Int.mul_emod j2,Int.mul_emod j3];
+    have : (6 : ℤ)%3 = 0:=by norm_num
+    rw [this]
+    have : (9 : ℤ)%3 = 0:=by norm_num
+    rw [this]
+    have : (15 : ℤ)%3 = 0:=by norm_num
+    rw [this]
     norm_num
-    use 2 * j3 + (5 * j2 - 1)
-    ring_nf
-  rw [Int.add_emod]; rw [← neg_mul]; rw [Int.mul_emod]
-  norm_num
-  rw [Int.sub_emod]; rw [Int.mul_emod]
+  rw [Int.add_emod,Int.sub_emod,Int.mul_emod j1,Int.mul_emod j3];
+  have : (3 : ℤ)%3 = 0:=by norm_num
+  rw [this]
+  have : (15 : ℤ)%3 = 0:=by norm_num
+  rw [this]
   norm_num
 
 theorem unit_zpow_two_mod_three :
@@ -634,32 +640,29 @@ theorem unit_zpow_two_mod_three :
     exact hj1; exact hj2; exact hj3
   clear g1 g2 g3 hj1 hj2 hj3
   rw [s] at w ; rw [unit_sq] at w
-  rw [mul_mule_3] at w ; dsimp at w ; ring_nf at w
-  rw [ext_iff] at w
+  rw [hMul_mule_3] at w ; dsimp at w ; ring_nf at w
+  rw [ℤθ.ext_iff] at w
   dsimp at w
   cases' w with w1 w23
   cases' w23 with w2 w3
+  rw [add_comm 2,mul_comm k] at w1 w2 w3
   rw [w1, w2, w3]
   constructor
-  · rw [Int.add_emod]; rw [← neg_mul]; rw [Int.mul_emod]
-    norm_num
-    rw [Int.add_emod]; rw [Int.mul_emod]
-    norm_num
-    rw [Int.sub_emod]; rw [Int.mul_emod]
-    norm_num
+  · rw [Int.add_emod,Int.add_emod _ (j3*12),Int.sub_emod,Int.mul_emod j1,Int.mul_emod j2,Int.mul_emod j3];
+    have : (15:ℤ) %3 =0 :=by norm_num
+    rw [this]
+    have : (12:ℤ) %3 =0 :=by norm_num
+    rw [this]
+    have : (24:ℤ) %3 =0 :=by norm_num
+    rw [this]; norm_num
   constructor
-  · rw [Int.add_emod]; rw [← neg_mul]; rw [Int.mul_emod]
-    norm_num
-    rw [Int.add_emod]; rw [Int.mul_emod]
-    norm_num
-    rw [Int.sub_emod]; rw [Int.mul_emod]
-    norm_num
-  rw [Int.add_emod]; rw [← neg_mul]; rw [Int.mul_emod]
-  norm_num
-  rw [Int.add_emod]; rw [Int.mul_emod]
-  norm_num
-  rw [Int.sub_emod]; rw [← neg_mul]; rw [Int.mul_emod]
-  norm_num
+  · rw [Int.add_emod,Int.add_emod _ (j3*60),Int.sub_emod,Int.mul_emod j1,Int.mul_emod j2,Int.mul_emod j3];
+    have : (42:ℤ) %3 =0 :=by norm_num
+    rw [this]
+    have : (60:ℤ) %3 =0 :=by norm_num
+    rw [this]
+    have : (57:ℤ) %3 =0 :=by norm_num
+    rw [this]; norm_num
 
 --the below should definitely be simplified!
 theorem hMul_three_pow_dvd (n : ℕ) (j : 1 ≤ n) : ∃ a : ℕ, 3 ^ a ∣ 3 * n ∧ ¬3 ^ (a + 1) ∣ 3 * n :=
