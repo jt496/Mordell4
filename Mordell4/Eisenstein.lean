@@ -24,9 +24,8 @@ instance decEq : DecidableEq ℤω := fun a b =>
   cases' a with r s
   cases' b with t u
   have : Decidable (r = t ∧ s = u) := And.decidable
-  apply decidable_of_decidable_of_iff this
-  tidy
-
+ -- apply decidable_of_decidable_of_iff this
+  sorry
 #check Nat.add
 
 /-- We give lean a way of displaying elements of `ℤω` using the command `#eval`.
@@ -91,17 +90,14 @@ theorem my_add_assoc : add (add a b) c = add a (add b c) :=
   by
   cases a; cases b; cases c
   simp only [add, add_assoc]
-  tauto
 
 theorem my_zero_add : add zero a = a := by
   cases' a with x y
   simp only [add, zero, zero_add]
-  tauto
 
 theorem my_add_zero : add a zero = a := by
   cases' a with x y
   simp only [add, zero, add_zero]
-  tauto
 
 theorem my_add_left_neg : add (neg a) a = zero :=
   by
@@ -114,13 +110,23 @@ theorem my_add_left_neg : add (neg a) a = zero :=
 theorem my_add_comm : add a b = add b a := by
   cases a; cases b
   simp only [add, add_comm]
-  tauto
+
 
 theorem my_mul_assoc : mul (mul a b) c = mul a (mul b c) :=
   by
   cases a; cases b; cases c
   simp only [mul]
-  constructor <;> ring
+  --constructor <;>
+  ring
+
+theorem my_zero_mul : mul zero a = zero := by
+  cases a
+  simp [zero,mul]
+
+theorem my_mul_zero : mul a zero = zero := by
+  cases a
+  simp [mul, zero]
+
 
 theorem my_one_mul : mul one a = a := by
   cases a
@@ -134,18 +140,21 @@ theorem my_left_distrib : mul a (add b c) = add (mul a b) (mul a c) :=
   by
   cases a; cases b; cases c
   simp only [mul, add]
-  constructor <;> ring
+  --constructor <;>
+  ring
 
 theorem my_right_distrib : mul (add a b) c = add (mul a c) (mul b c) :=
   by
   cases a; cases b; cases c
   simp only [mul, add]
-  constructor <;> ring
+  --constructor <;>
+  ring
 
 theorem my_mul_comm : mul a b = mul b a := by
   cases a; cases b
   simp only [mul]
-  constructor <;> ring
+  --constructor <;>
+  ring
 
 /-- We now package all of this information together to
 tell lean that `ℤω` is a ring.
@@ -156,6 +165,8 @@ instance isRing : CommRing ℤω where
   add := add
   one := one
   mul := mul
+  zero_mul := my_zero_mul
+  mul_zero := my_mul_zero
   add_assoc := my_add_assoc
   zero_add := my_zero_add
   add_zero := my_add_zero
@@ -190,15 +201,13 @@ theorem rt3_sq : rt3 ^ 2 = 3 := by
   rw [Real.sqrt_mul_self this]
 
 @[simp]
-theorem sqrt_3_inv_hMul_self : rt3⁻¹ * rt3 = 1 :=
-  by
+theorem sqrt3_inv_hMul_self : rt3⁻¹ * rt3 = 1 :=
+by
   apply inv_mul_cancel
   intro h
-  have := Real.sqrt_eq_iff_mul_self_eq (_ : 0 ≤ 3) (_ : 0 ≤ 0)
+  have := Real.sqrt_eq_iff_mul_self_eq (by norm_num : (0:ℝ) ≤ 3) (by norm_num : (0:ℝ) ≤ 0)
   rw [this] at h
   norm_num at h
-  norm_num
-  rfl
 
 noncomputable def complexω : ℂ :=
   ⟨-1 / 2, rt3 / 2⟩
@@ -209,12 +218,12 @@ theorem complexω_sq : complexω ^ 2 = -complexω - 1 :=
   rw [pow_two]
   ext
   · simp only [Complex.mul_re]
-    simp only [complex_ω]
+    simp only [complexω]
     ring_nf
-    rw [rt_3_sq]
+    rw [rt3_sq]
     norm_num
   · rw [Complex.mul_im]
-    simp only [complex_ω]
+    simp only [complexω]
     ring_nf
     dsimp
     ring_nf
@@ -222,30 +231,29 @@ theorem complexω_sq : complexω ^ 2 = -complexω - 1 :=
 noncomputable def toℂ : ℤω → ℂ := fun a => a.x + a.y * complexω
 
 theorem my_map_one : toℂ one = 1 := by
-  simp only [to_ℂ, one]
-  dsimp
+  simp only [toℂ, one]
+--  dsimp
   norm_num
 
 theorem my_map_mul : toℂ (mul a b) = toℂ a * toℂ b :=
   by
   cases a; cases b
-  simp only [mul, to_ℂ]
-  dsimp
+  simp only [mul, toℂ]
+  --dsimp
   norm_num
   ring_nf
   congr
-  rw [complex_ω_sq]
+  rw [complexω_sq]
+  sorry
 
 theorem my_map_zero : toℂ zero = 0 := by
-  simp [to_ℂ, zero]
-  dsimp
-  norm_cast
-  ring_nf
+  simp [toℂ, zero]
+ -- dsimp
 
 theorem my_map_add : toℂ (add a b) = toℂ a + toℂ b :=
   by
   cases a; cases b
-  simp only [add, to_ℂ, complex_ω]
+  simp only [add, toℂ, complexω]
   ext <;> dsimp <;> norm_num <;> ring
 
 noncomputable def inclusion : ℤω →+* ℂ where
@@ -260,10 +268,10 @@ noncomputable instance ℤωCoeToℂ : Coe ℤω ℂ where coe := inclusion.toFu
 -- @[simp]
 theorem coe_of_mk (x y : ℤ) : (ℤω.mk x y : ℂ) = Complex.mk (x - y / 2 : ℝ) (y * rt3 / 2 : ℝ) :=
   by
-  change to_ℂ ⟨x, y⟩ = ⟨x - y / 2, y * rt_3 / 2⟩
-  unfold to_ℂ
+  change toℂ ⟨x, y⟩ = ⟨x - y / 2, y * rt3 / 2⟩
+  unfold toℂ
   dsimp
-  unfold complex_ω
+  unfold complexω
   ext
   · simp only [add_re, int_cast_re, mul_re, int_cast_im, MulZeroClass.zero_mul, tsub_zero]
     ring
@@ -274,18 +282,18 @@ theorem coe_of_mk (x y : ℤ) : (ℤω.mk x y : ℂ) = Complex.mk (x - y / 2 : �
 -- @[simp]
 theorem re_of_coe : (a : ℂ).re = a.x - a.y / 2 :=
   by
-  change (to_ℂ a).re = a.x - a.y / 2
-  unfold to_ℂ
-  unfold complex_ω
+  change (toℂ a).re = a.x - a.y / 2
+  unfold toℂ
+  unfold complexω
   simp only [add_re, int_cast_re, mul_re, int_cast_im, MulZeroClass.zero_mul, tsub_zero]
   ring
 
 -- @[simp]
 theorem im_of_coe : (a : ℂ).im = a.y * rt3 / 2 :=
   by
-  change (to_ℂ a).im = a.y * rt_3 / 2
-  unfold to_ℂ
-  unfold complex_ω
+  change (toℂ a).im = a.y * rt3 / 2
+  unfold toℂ
+  unfold complexω
   simp only [add_im, int_cast_im, mul_im, int_cast_re, MulZeroClass.zero_mul, add_zero, zero_add]
   ring
 
@@ -295,9 +303,9 @@ theorem y_from_coe : (a.y : ℝ) = 2 * rt3⁻¹ * (a : ℂ).im :=
   cases' a with x y
   simp only [coe_of_mk]
   ring_nf
-  rw [mul_comm]
-  rw [← _root_.mul_assoc]
-  simp only [sqrt_3_inv_mul_self, _root_.one_mul, Int.cast_inj, eq_self_iff_true]
+  rw [mul_comm rt3]
+--  rw [← _root_.mul_assoc]
+  simp only [sqrt3_inv_hMul_self, _root_.one_mul, Int.cast_inj, eq_self_iff_true]
 
 -- @[simp]
 theorem x_from_coe : (a.x : ℝ) = (a : ℂ).re + rt3⁻¹ * (a : ℂ).im :=
@@ -305,10 +313,12 @@ theorem x_from_coe : (a.x : ℝ) = (a : ℂ).re + rt3⁻¹ * (a : ℂ).im :=
   cases' a with x y
   simp only [coe_of_mk]
   ring_nf
-  rw [_root_.mul_assoc]
-  rw [mul_comm rt_3]
-  simp only [one_div, sqrt_3_inv_mul_self, _root_.mul_one, sub_self, _root_.zero_mul,
-    _root_.add_zero, Int.cast_inj, eq_self_iff_true]
+  rw [mul_assoc,mul_assoc,mul_comm rt3]
+  simp only [ofNat_eq_coe, Nat.cast_one, cast_one, Nat.cast_ofNat, one_div, cast_negOfNat, mul_neg,
+    mul_one, neg_mul]
+  rw [mul_comm ((rt3)⁻¹),mul_assoc]
+  simp only [ne_eq, sqrt3_inv_hMul_self, mul_one, add_neg_cancel_right]
+
 
 -- @[simp]
 theorem coe_eq_zero {z : ℤω} : (z : ℂ) = 0 ↔ z = 0 :=
@@ -333,9 +343,9 @@ theorem coe_eq_zero {z : ℤω} : (z : ℂ) = 0 ↔ z = 0 :=
 -- @[simp]
 theorem coe_neg : ((-a : ℤω) : ℂ) = -(a : ℂ) :=
   by
-  change to_ℂ (neg a) = -to_ℂ a
-  simp only [neg, to_ℂ]
-  dsimp
+  change toℂ (neg a) = -toℂ a
+  simp only [neg, toℂ]
+--  dsimp
   norm_num
   ring
 
@@ -357,51 +367,51 @@ def norm : ℤω → ℤ := fun z => z.x ^ 2 - z.x * z.y + z.y ^ 2
 theorem normSq_coe : normSq a = (norm a : ℤ) :=
   by
   cases' a with x y
-  simp [norm_sq, Norm]
+  simp [normSq, Norm]
   ring_nf
   simp only [re_of_coe, im_of_coe]
   -- simp only [mul_inv_cancel, ne.def, bit0_eq_zero, one_ne_zero,
-  -- not_false_iff, _root_.one_mul, rt_3_sq, inv_pow, add_right_inj],
+  -- not_false_iff, _root_.one_mul, rt3_sq, inv_pow, add_right_inj],
   ring_nf
-  rw [rt_3_sq]
+  rw [rt3_sq]
   ring_nf
 
 def natNorm : ℤω → ℕ := fun z => natAbs (norm z)
 
 theorem natNorm_coe : normSq (a : ℂ) = (natNorm a : ℝ) :=
   by
-  unfold nat_Norm
-  rw [norm_sq_coe]
-  suffices : a.Norm = a.Norm.nat_abs
+  unfold natNorm
+  rw [normSq_coe]
+  suffices : a.norm = a.norm.natAbs
   congr
   exact this
   refine' eq_nat_abs_of_zero_le _
-  suffices : 0 ≤ norm_sq a
-  rw [norm_sq_coe] at this
+  suffices : 0 ≤ normSq a
+  rw [normSq_coe] at this
   exact_mod_cast this
-  exact norm_sq_nonneg _
+  exact normSq_nonneg _
 
 theorem norm_hMul : norm (a * b) = norm a * norm b :=
   by
-  have := norm_sq_mul a b
-  rw [← coe_mul] at this
-  simp only [norm_sq_coe] at this
+  have := normSq_mul a b
+  rw [← coe_hMul] at this
+  simp only [normSq_coe] at this
   exact_mod_cast this
 
 theorem natNorm_hMul : natNorm (a * b) = natNorm a * natNorm b :=
   by
-  have := norm_sq_mul a b
-  rw [← coe_mul] at this
-  simp only [nat_Norm_coe] at this
+  have := normSq_mul a b
+  rw [← coe_hMul] at this
+  simp only [natNorm_coe] at this
   exact_mod_cast this
 
 theorem natNorm_eq_zero_iff : natNorm a = 0 ↔ a = 0 :=
   by
   constructor
   · intro h
-    have : (a.nat_Norm : ℝ) = 0 := by exact_mod_cast h
-    rw [← nat_Norm_coe] at this
-    rw [norm_sq_eq_zero] at this
+    have : (a.natNorm : ℝ) = 0 := by exact_mod_cast h
+    rw [← natNorm_coe] at this
+    rw [normSq_eq_zero] at this
     rwa [coe_eq_zero] at this
   · intro h
     rw [h]
@@ -446,12 +456,12 @@ theorem im_sub_nearest (z : ℂ) : (z - nearestℤω z).im ^ 2 ≤ (4⁻¹ * rt3
   by
   rw [sq_le_sq]
   cases' z with x y
-  unfold nearest_ℤω
+  unfold nearestℤω
   dsimp
   simp only [coe_of_mk]; clear x
-  have := sub_mul_round y (_ : 2⁻¹ * rt_3 > 0)
+  have := sub_mul_round y (_ : 2⁻¹ * rt3 > 0)
   rw [mul_comm] at this
-  have arith : 2⁻¹ * (2⁻¹ * rt_3) = |4⁻¹ * rt_3| :=
+  have arith : 2⁻¹ * (2⁻¹ * rt3) = |4⁻¹ * rt3| :=
     by
     ring_nf
     symm
@@ -459,7 +469,7 @@ theorem im_sub_nearest (z : ℂ) : (z - nearestℤω z).im ^ 2 ≤ (4⁻¹ * rt3
       zero_le_bit0, zero_le_one]
   rwa [arith] at this ; clear arith
   ring_nf at this ⊢
-  have arith : (1 / 2 * rt_3)⁻¹ = 2 * rt_3⁻¹ := by
+  have arith : (1 / 2 * rt3)⁻¹ = 2 * rt3⁻¹ := by
     simp only [mul_comm, one_div, mul_inv_rev, inv_inv]
   rwa [arith] at this
   ·
@@ -470,7 +480,7 @@ theorem re_sub_nearest (z : ℂ) : (z - nearestℤω z).re ^ 2 ≤ 2⁻¹ ^ 2 :=
   by
   rw [sq_le_sq]
   cases' z with x y
-  unfold nearest_ℤω
+  unfold nearestℤω
   dsimp
   simp only [coe_of_mk]
   ring_nf
@@ -484,13 +494,13 @@ theorem norm_sub_nearestℤω_self_lt (z : ℂ) : normSq (z - nearestℤω z) < 
   by
   have hre := re_sub_nearest z
   have him := im_sub_nearest z
-  unfold norm_sq
+  unfold normSq
   dsimp
   simp only [← pow_two]
-  have arith : (2 : ℝ)⁻¹ ^ 2 + (4⁻¹ * rt_3) ^ 2 < 1 :=
+  have arith : (2 : ℝ)⁻¹ ^ 2 + (4⁻¹ * rt3) ^ 2 < 1 :=
     by
     ring_nf
-    simp only [one_div, rt_3_sq]
+    simp only [one_div, rt3_sq]
     norm_num
   have near := add_le_add hre him
   have := lt_of_le_of_lt near arith
@@ -510,16 +520,16 @@ theorem div_add_mod : b * (a / b) + a % b = a :=
   change b * div a b + mod a b = a
   simp [mod]
 
-theorem norm_sq_mod_lt (h : b ≠ 0) : natNorm (mod a b) < natNorm b :=
+theorem normSq_mod_lt (h : b ≠ 0) : natNorm (mod a b) < natNorm b :=
   by
-  suffices Complex.normSq (mod a b) < norm_sq b
+  suffices Complex.normSq (mod a b) < normSq b
     by
-    simp only [nat_Norm_coe] at this
+    simp only [natNorm_coe] at this
     exact_mod_cast this
   simp [mod, div]
-  have bound : Complex.normSq (a / b - nearest_ℤω (a / b)) < 1 :=
-    norm_sub_nearest_ℤω_self_lt (a / b : ℂ)
-  have : (a / b : ℂ) - nearest_ℤω (a / b) = (a - nearest_ℤω (a / b) * b) * b⁻¹ :=
+  have bound : Complex.normSq (a / b - nearestℤω (a / b)) < 1 :=
+    norm_sub_nearestℤω_self_lt (a / b : ℂ)
+  have : (a / b : ℂ) - nearestℤω (a / b) = (a - nearestℤω (a / b) * b) * b⁻¹ :=
     by
     ring_nf
     have : (b : ℂ) * (b : ℂ)⁻¹ = 1 := by
@@ -531,10 +541,10 @@ theorem norm_sq_mod_lt (h : b ≠ 0) : natNorm (mod a b) < natNorm b :=
     rw [this]
     rw [_root_.mul_one]
   rw [this] at bound ; clear this
-  rw [norm_sq_mul] at bound
-  rw [norm_sq_inv] at bound
+  rw [normSq_mul] at bound
+  rw [normSq_inv] at bound
   have bound2 : 0 < Complex.normSq b := by
-    rw [norm_sq_pos]
+    rw [normSq_pos]
     intro h'
     rw [coe_eq_zero] at h'
     contradiction
@@ -542,34 +552,36 @@ theorem norm_sq_mod_lt (h : b ≠ 0) : natNorm (mod a b) < natNorm b :=
   rw [mul_one] at bound
   rw [mul_comm] at bound
   rw [coe_sub]
-  rw [coe_mul]
+  rw [coe_hMul]
   assumption
 
 theorem my_quotient_zero : div a 0 = 0 := by
   unfold div
   have : ((0 : ℤω) : ℂ) = 0 := my_map_zero
   rw [this, div_zero]
-  unfold nearest_ℤω
-  ext <;> dsimp <;> simp only [MulZeroClass.mul_zero, round_zero, algebraMap.coe_zero, add_zero] <;>
-    rfl
+  unfold nearestℤω
+  ext <;> dsimp <;> simp only [MulZeroClass.mul_zero, round_zero, algebraMap.coe_zero, add_zero]
+  simp only [cast_zero, mul_zero, add_zero, round_zero]
 
 theorem my_hMul_left_not_lt (hb : b ≠ 0) : ¬natNorm (a * b) < natNorm a :=
   by
-  rw [nat_Norm_mul]
+  rw [natNorm_mul]
   intro h
   apply hb; clear hb
-  rw [← nat_Norm_eq_zero_iff]
-  cases b.nat_Norm
+  rw [← natNorm_eq_zero_iff]
+  cases b.natNorm
   · rfl
   · exfalso
     rw [Nat.mul_succ] at h
     simpa only [add_lt_iff_neg_right, not_lt_zero'] using h
+    sorry
 
-noncomputable instance euclideanℤω : EuclideanDomain ℤω
-    where
+noncomputable instance euclideanℤω : EuclideanDomain ℤω where
   add := add
   zero := ⟨0, 0⟩
   zero_add := zero_add
+  zero_mul := zero_mul
+  mul_zero := mul_zero
   add_zero := add_zero
   add_assoc := add_assoc
   neg := neg
@@ -586,17 +598,19 @@ noncomputable instance euclideanℤω : EuclideanDomain ℤω
   exists_pair_ne := by
     use 0
     use 1
-    decide
-  Quotient := div
+    intro h01
+    rw [ℤω.ext_iff] at h01
+    cases h01; contradiction
+  quotient := div
   quotient_zero := my_quotient_zero
   remainder := mod
   quotient_mul_add_remainder_eq := div_add_mod
-  R a b := natNorm a < natNorm b
+  r a b := natNorm a < natNorm b
   r_wellFounded := by
-    refine' InvImage.wf (fun a₁ : ℤω => nat_Norm a₁) _
+    refine' InvImage.wf (fun a₁ : ℤω => natNorm a₁) _
     exact { apply := _ }
     exact WellFoundedLT.apply
-  remainder_lt a b := by simpa using norm_sq_mod_lt a b
+  remainder_lt a b := by simpa using normSq_mod_lt a b
   mul_left_not_lt := my_hMul_left_not_lt
 
 open EuclideanDomain
