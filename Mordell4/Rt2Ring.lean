@@ -7,7 +7,7 @@ import Mathlib.Algebra.GroupPower.Basic
 import Mathlib.Data.Real.Irrational
 import Mathlib.Algebra.Order.Monoid.Lemmas
 
-#align_import rt_2_ring
+#align_import rt2_ring
 
 open scoped Classical
 
@@ -79,17 +79,17 @@ theorem my_add_assoc : add (add a b) c = add a (add b c) :=
   by
   cases a; cases b; cases c
   simp only [add, add_assoc]
-  tauto
+
 
 theorem my_zero_add : add zero a = a := by
   cases' a with x y
   simp only [add, zero, zero_add]
-  tauto
+
 
 theorem my_add_zero : add a zero = a := by
   cases' a with x y
   simp only [add, zero, add_zero]
-  tauto
+
 
 theorem my_add_left_neg : add (neg a) a = zero :=
   by
@@ -102,13 +102,13 @@ theorem my_add_left_neg : add (neg a) a = zero :=
 theorem my_add_comm : add a b = add b a := by
   cases a; cases b
   simp only [add, add_comm]
-  tauto
+
 
 theorem my_mul_assoc : mul (mul a b) c = mul a (mul b c) :=
   by
   cases a; cases b; cases c
   simp only [mul]
-  constructor <;> ring
+  ring
 
 theorem my_one_mul : mul one a = a := by
   cases a
@@ -118,22 +118,30 @@ theorem my_mul_one : mul a one = a := by
   cases a
   simp [mul, one]
 
+theorem my_zero_mul : mul zero a = zero := by
+  cases a
+  simp [mul, zero]
+
+theorem my_mul_zero : mul a zero = zero := by
+  cases a
+  simp [mul, zero]
+
 theorem my_left_distrib : mul a (add b c) = add (mul a b) (mul a c) :=
   by
   cases a; cases b; cases c
   simp only [mul, add]
-  constructor <;> ring
+  ring
 
 theorem my_right_distrib : mul (add a b) c = add (mul a c) (mul b c) :=
   by
   cases a; cases b; cases c
   simp only [mul, add]
-  constructor <;> ring
+  ring
 
 theorem my_mul_comm : mul a b = mul b a := by
   cases a; cases b
   simp only [mul]
-  constructor <;> ring
+  ring
 
 def zsmul : ℤ → ℤα → ℤα := fun n a => ⟨n * a.z, n * a.w⟩
 
@@ -157,7 +165,7 @@ theorem my_zsmul_succ' :
   linarith
   linarith
 
-theorem my_zsmul_neg' : ∀ (n : ℕ) (a : ℤα), zsmul -[n+1] a = (zsmul (↑n.succ) a).neg :=
+theorem my_zsmul_neg' : ∀ (n : ℕ) (a : ℤα), zsmul (Int.negSucc n) a = (zsmul (↑n.succ) a).neg :=
   by
   intro n a
   simp
@@ -169,11 +177,11 @@ theorem my_zsmul_neg' : ∀ (n : ℕ) (a : ℤα), zsmul -[n+1] a = (zsmul (↑n
   rw [Int.negSucc_coe]
   rw [Int.neg_mul_eq_neg_mul_symm]
   rw [Int.ofNat_add]
-  rwa [Int.ofNat_one]
+  rw [Int.ofNat_one]
   rw [Int.negSucc_coe]
   rw [Int.neg_mul_eq_neg_mul_symm]
   rw [Int.ofNat_add]
-  rwa [Int.ofNat_one]
+  rw [Int.ofNat_one]
 
 def intCast : ℤ → ℤα := fun a => ⟨a, 0⟩
 
@@ -181,7 +189,7 @@ def natCast : ℕ → ℤα := fun a => ⟨a, 0⟩
 
 theorem my_natCast_zero : natCast 0 = zero :=
   by
-  unfold nat_cast
+  unfold natCast
   rw [Int.ofNat_zero]
   rfl
 
@@ -208,6 +216,8 @@ instance isRing : CommRing ℤα where
   add := add
   one := one
   mul := mul
+  zero_mul := my_zero_mul
+  mul_zero := my_mul_zero
   add_assoc := my_add_assoc
   zero_add := my_zero_add
   add_zero := my_add_zero
@@ -253,45 +263,37 @@ theorem rt2_sq : rt2 ^ 2 = 2 := by
   rw [← Real.sqrt_mul this 2]
   rw [Real.sqrt_mul_self this]
 
-theorem sqrt_2_inv_hMul_self : rt2⁻¹ * rt2 = 1 :=
+theorem sqrt2_inv_hMul_self : rt2⁻¹ * rt2 = 1 :=
   by
   apply inv_mul_cancel
   intro h
-  have := Real.sqrt_eq_iff_mul_self_eq (_ : 0 ≤ 2) (_ : 0 ≤ 0)
+  have := Real.sqrt_eq_iff_mul_self_eq (by norm_num : (0:ℝ) ≤ 2) (by norm_num: (0:ℝ) ≤ 0)
   rw [this] at h
   norm_num at h
-  norm_num
-  rfl
 
 noncomputable def toℝ : ℤα → ℝ := fun a => a.z + a.w * rt2
 
 theorem my_map_one : toℝ one = 1 := by
-  simp only [to_ℝ, one]
-  dsimp
+  simp only [toℝ, one]
   norm_num
 
 theorem my_map_mul : toℝ (mul a b) = toℝ a * toℝ b :=
   by
   cases a; cases b
-  simp only [mul, to_ℝ]
-  dsimp
+  simp only [mul, toℝ]
   norm_num
   ring_nf
   congr
-  rw [rt_2]
+  rw [rt2]
   norm_num
 
 theorem my_map_zero : toℝ zero = 0 := by
-  simp [to_ℝ, zero]
-  dsimp
-  norm_cast
-  ring_nf
+  simp [toℝ, zero]
 
 theorem my_map_add : toℝ (add a b) = toℝ a + toℝ b :=
   by
   cases a; cases b
-  simp only [add, to_ℝ]
-  dsimp
+  simp only [add, toℝ]
   norm_num
   ring_nf
 
@@ -305,9 +307,10 @@ noncomputable def inclusion : ℤα →+* ℝ where
 noncomputable instance ℤαCoeToℝ : Coe ℤα ℝ where coe := inclusion.toFun
 
 theorem coe_of_mk (x y : ℤ) : (ℤα.mk x y : ℝ) = x + y * Real.sqrt 2 :=
-  by
-  change to_ℝ ⟨x, y⟩ = x + y * rt_2
-  unfold to_ℝ
+by
+  change toℝ ⟨x, y⟩ = x + y * rt2
+  unfold toℝ
+  simp only
 
 def norm : ℤα → ℤ := fun z => abs (z.z ^ 2 - 2 * z.w ^ 2)
 
@@ -316,18 +319,18 @@ def qNorm : ℚ → ℚ → ℚ := fun a b => abs (a ^ 2 - 2 * b ^ 2)
 theorem qNorm_hMul (a b c d : ℚ) :
     qNorm a b * qNorm c d = qNorm (a * c + 2 * b * d) (a * d + b * c) :=
   by
-  unfold Q_Norm
+  unfold qNorm
   rw [← abs_mul]
   ring_nf
 
 theorem qNorm_coe (a : ℤα) : qNorm (a.z : ℚ) (a.w : ℚ) = (norm a : ℚ) :=
   by
-  unfold Q_Norm Norm
+  unfold qNorm norm
   norm_cast
 
 theorem norm_hMul : norm (a * b) = norm a * norm b :=
   by
-  unfold Norm
+  unfold norm
   change
     |(a.z * b.z + 2 * a.w * b.w) ^ 2 - 2 * (a.z * b.w + a.w * b.z) ^ 2| =
       |a.z ^ 2 - 2 * a.w ^ 2| * |b.z ^ 2 - 2 * b.w ^ 2|
@@ -338,7 +341,7 @@ theorem norm_eq_zero_iff : norm a = 0 ↔ a = 0 :=
   by
   constructor
   · intro h
-    unfold Norm at h
+    unfold norm at h
     have g : a.w = 0 ∨ a.w ≠ 0 := by omega
     cases' g with r t
     · rw [r] at h
@@ -383,7 +386,7 @@ theorem norm_eq_zero_iff : norm a = 0 ↔ a = 0 :=
     rw [abs_div]
     norm_cast
   intro h
-  unfold Norm
+  unfold norm
   rw [h]
   ring_nf
 
@@ -405,10 +408,10 @@ def div : ℤα → ℤα → ℤα := fun a b => nearestℤα (exDiv a b)
 theorem re_sub_nearest (z : ℚ) : (z - nearestℤ z) ^ 2 ≤ 2⁻¹ ^ 2 :=
   by
   rw [sq_le_sq]
-  unfold nearest_ℤ
+  unfold nearestℤ
   have : |(1 / 2 : ℚ)| = 1 / 2 := by
     simp only [one_div, abs_eq_self, inv_nonneg, zero_le_bit0, zero_le_one]
-  ring_nf
+  ring_nf; norm_num
   rw [this]
   exact abs_sub_round z
 
@@ -429,9 +432,9 @@ theorem div_add_mod (a b : ℤα) : b * (a / b) + a % b = a :=
 theorem ineq_nearest_1 (f g : ℤα) : ((f.exDiv g).fst - ↑(f.div g).z) ^ 2 ≤ 1 / 4 :=
   by
   unfold div
-  unfold nearest_ℤα
+  unfold nearestℤα
   dsimp
-  have g := abs_sub_round (f.ex_div g).fst
+  have g := abs_sub_round (f.exDiv g).fst
   have k : |1 / 2| = (1 / 2 : ℚ) := abs_of_pos one_half_pos
   rw [← k] at g
   rw [← sq_le_sq] at g
@@ -441,9 +444,9 @@ theorem ineq_nearest_1 (f g : ℤα) : ((f.exDiv g).fst - ↑(f.div g).z) ^ 2 �
 theorem ineq_nearest_2 (f g : ℤα) : 2 * ((f.exDiv g).snd - ↑(f.div g).w) ^ 2 ≤ 1 / 2 :=
   by
   unfold div
-  unfold nearest_ℤα
+  unfold nearestℤα
   dsimp
-  have g := abs_sub_round (f.ex_div g).snd
+  have g := abs_sub_round (f.exDiv g).snd
   have k : |1 / 2| = (1 / 2 : ℚ) := abs_of_pos one_half_pos
   rw [← k] at g
   rw [← sq_le_sq] at g
@@ -455,13 +458,13 @@ theorem ineq_nearest_2 (f g : ℤα) : 2 * ((f.exDiv g).snd - ↑(f.div g).w) ^ 
 theorem ineq (f g : ℤα) :
     qNorm ((exDiv f g).1 - ((div f g).z : ℚ)) ((exDiv f g).2 - ((div f g).w : ℚ)) ≤ 3 / 4 :=
   by
-  unfold Q_Norm
+  unfold qNorm
   have r :=
-    abs_sub (((f.ex_div g).fst - ↑(f.div g).z) ^ 2) (2 * ((f.ex_div g).snd - ↑(f.div g).w) ^ 2)
-  rw [abs_sq ((f.ex_div g).fst - ↑(f.div g).z)] at r
-  rw [abs_mul 2 (((f.ex_div g).snd - ↑(f.div g).w) ^ 2)] at r
+    abs_sub (((f.exDiv g).fst - ↑(f.div g).z) ^ 2) (2 * ((f.exDiv g).snd - ↑(f.div g).w) ^ 2)
+  rw [abs_sq ((f.exDiv g).fst - ↑(f.div g).z)] at r
+  rw [abs_mul 2 (((f.exDiv g).snd - ↑(f.div g).w) ^ 2)] at r
   rw [abs_two] at r
-  rw [abs_sq ((f.ex_div g).snd - ↑(f.div g).w)] at r
+  rw [abs_sq ((f.exDiv g).snd - ↑(f.div g).w)] at r
   have b := add_le_add (ineq_nearest_1 f g) (ineq_nearest_2 f g)
   norm_num at b
   exact le_trans r b
@@ -480,7 +483,7 @@ theorem simp_1 (a b : ℤα) (j : norm b ≠ 0) :
   repeat' rw [mul_div]
   repeat' rw [mul_sub_left_distrib]
   rw [← add_div]
-  unfold Norm at j
+  unfold norm at j
   have w : (b.z : ℚ) ^ 2 - 2 * b.w ^ 2 ≠ 0 := by
     by_contra
     apply j
@@ -502,7 +505,7 @@ theorem simp_2 (a b : ℤα) (j : norm b ≠ 0) :
   repeat' rw [mul_div]
   repeat' rw [mul_sub_left_distrib]
   rw [← add_div]
-  unfold Norm at j
+  unfold norm at j
   have w : (b.z : ℚ) ^ 2 - 2 * b.w ^ 2 ≠ 0 := by
     by_contra
     apply j
@@ -513,25 +516,25 @@ theorem simp_2 (a b : ℤα) (j : norm b ≠ 0) :
 
 theorem norm_sq_mod_lt (h : b ≠ 0) : norm (mod a b) < norm b :=
   by
-  suffices h : ((a.mod b).norm : ℚ) < b.Norm
+  suffices h : ((a.mod b).norm : ℚ) < b.norm
   exact_mod_cast h
-  rw [← Q_Norm_coe (a.mod b)]
-  rw [← Q_Norm_coe b]
-  have suck : Norm b ≠ 0 := by
+  rw [← qNorm_coe (a.mod b)]
+  rw [← qNorm_coe b]
+  have suck : norm b ≠ 0 := by
     by_contra p
     apply h
-    rwa [Norm_eq_zero_iff b] at p
-  have s : (0 : ℚ) < Q_Norm b.z b.w := by
-    unfold Q_Norm
+    rwa [norm_eq_zero_iff b] at p
+  have s : (0 : ℚ) < qNorm b.z b.w := by
+    unfold qNorm
     norm_cast
     have jack := abs_nonneg (b.z ^ 2 - 2 * b.w ^ 2)
-    unfold Norm at suck
+    unfold norm at suck
     exact lt_of_le_of_ne' jack suck
   have boing := ineq a b
   rw [← mul_le_mul_left s] at boing
-  rw [Q_Norm_mul] at boing
-  unfold ex_div at boing
-  dsimp at boing
+  rw [qNorm_hMul] at boing
+  unfold exDiv at boing
+  --dsimp at boing
   rw [simp_1 a b suck] at boing
   rw [simp_2 a b suck] at boing
   unfold mod
@@ -556,24 +559,24 @@ theorem norm_sq_mod_lt (h : b ≠ 0) : norm (mod a b) < norm b :=
     dsimp
     rw [sub_add_eq_sub_sub]
   rw [← sis] at boing
-  have father : Q_Norm ↑b.z ↑b.w * (3 / 4) < Q_Norm ↑b.z ↑b.w :=
+  have father : qNorm ↑b.z ↑b.w * (3 / 4) < qNorm ↑b.z ↑b.w :=
     by
-    nth_rw 2 [← mul_one (Q_Norm ↑b.z ↑b.w)]
+    nth_rw 2 [← mul_one (qNorm ↑b.z ↑b.w)]
     rw [mul_lt_mul_left s]
     norm_num
   exact lt_of_le_of_lt boing father
 
 theorem my_quotient_zero : div a 0 = 0 := by
   unfold div
-  unfold ex_div
+  unfold exDiv
   norm_cast
   change
-    nearest_ℤα
+    nearestℤα
         (Rat.mk (a.z * (0 : ℤ) - 2 * a.w * (0 : ℤ)) ((0 : ℤ) ^ 2 - 2 * (0 : ℤ) ^ 2),
           Rat.mk (a.w * (0 : ℤ) - a.z * (0 : ℤ)) ((0 : ℤ) ^ 2 - 2 * (0 : ℤ) ^ 2)) =
       0
   norm_num
-  unfold nearest_ℤα
+  unfold nearestℤα
   dsimp
   have l : round (0 : ℚ) = (0 : ℤ) := round_zero
   rw [l]
@@ -581,16 +584,16 @@ theorem my_quotient_zero : div a 0 = 0 := by
 
 theorem my_hMul_left_not_lt (hb : b ≠ 0) : ¬norm (a * b) < norm a :=
   by
-  rw [Norm_mul]
+  rw [norm_hMul]
   intro h
   apply hb; clear hb
-  rw [← Norm_eq_zero_iff]
-  nth_rw 2 [← mul_one a.Norm] at h
-  have bob : 0 ≤ a.Norm := abs_nonneg _
+  rw [← norm_eq_zero_iff]
+  nth_rw 2 [← mul_one a.norm] at h
+  have bob : 0 ≤ a.norm := abs_nonneg _
   have rob := lt_or_eq_of_le bob
   cases' rob with rh th
   rw [mul_lt_mul_left rh] at h
-  have pob : 0 ≤ b.Norm := abs_nonneg _
+  have pob : 0 ≤ b.norm := abs_nonneg _
   linarith
   --come back and simplify
   exfalso
@@ -623,21 +626,21 @@ instance euclideanℤα : EuclideanDomain ℤα
     use 0
     use 1
     intro h
-    rw [ext_iff] at h
+    rw [ℤα.ext_iff] at h
     cases' h with h1 h2
     cases h1
-  Quotient := div
+  quotient := div
   quotient_zero := my_quotient_zero
   remainder := mod
   quotient_mul_add_remainder_eq := div_add_mod
-  R a b := norm a < norm b
+  r a b := norm a < norm b
   r_wellFounded := by
-    refine' InvImage.wf (fun a₁ : ℤα => Norm a₁) _
+    refine' InvImage.wf (fun a₁ : ℤα => norm a₁) _
     exact { apply := _ }
     sorry
   --exact well_founded_lt.apply,
   --What does this mean?
-  remainder_lt a b := by simpa using Norm_sq_mod_lt a b
+  remainder_lt a b := by simpa using norm_sq_mod_lt a b
   mul_left_not_lt := my_hMul_left_not_lt
 
 open EuclideanDomain
