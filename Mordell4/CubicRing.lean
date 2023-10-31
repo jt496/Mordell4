@@ -136,6 +136,17 @@ theorem my_mul_assoc : mul (mul a b) c = mul a (mul b c) :=
   simp only [mul]
   ring
 
+
+theorem my_zero_mul : mul zero a = zero := by
+  cases a
+  simp [mul, zero]
+
+
+theorem my_mul_zero : mul a zero = zero := by
+  cases a
+  simp [mul, zero]
+
+
 theorem my_one_mul : mul one a = a := by
   cases a
   simp [mul, one]
@@ -237,8 +248,8 @@ instance isRing : CommRing ℤθ where
   add := add
   one := one
   mul := mul
-  zero_mul := sorry
-  mul_zero := sorry
+  zero_mul := my_zero_mul
+  mul_zero := my_mul_zero
   add_assoc := my_add_assoc
   zero_add := my_zero_add
   add_zero := my_add_zero
@@ -300,14 +311,12 @@ theorem hMul_mule_3 (a b : ℤθ) :
           a.f * b.h + a.h * b.f + a.g * b.g + 3 * a.h * b.h - 3 * a.g * b.h - 3 * a.h * b.g⟩ :
         ℤθ) :=
   by rfl
+set_option maxHeartbeats 1000000
 
 theorem norm_hMul (r s : ℤθ) : norm r * norm s = norm (r * s) :=
-  by-- unfold Norm,
-  -- rw mul_mule_3 r s,
-  -- dsimp,
-  -- rw ← abs_mul,
-  -- ring_nf,
-  sorry
+by
+  rw [norm,norm,norm,hMul_mule_3 r s,← abs_mul]
+  ring_nf
 
 theorem norm_divides {p a : ℤθ} (h : p ∣ a) : norm p ∣ norm a :=
   by
@@ -368,7 +377,6 @@ theorem unit_pow_one :
 by
   norm_cast
 
-set_option maxHeartbeats 1000000
 
 theorem unit_pow_zero_mod_three :
     ∀ k : ℕ,
@@ -936,30 +944,11 @@ theorem unit_pow_three_pow_1 (n : ℕ) :
     cases' elem with f1 f2; rw [f1]; norm_num
 
     sorry
-    have kg : 2 ≥ 1 := by norm_num;
-    have f3 := LT.lt.gt f2;
-    have f4 := gt_of_ge_of_gt kg f3
-    have f5 := GT.gt.lt f4;
---    exact f5
-    interval_cases using lower, upper
-    rw [h]; rw [one_add_one_eq_two]
-    have e1 : 1 + 2 = 3 := by norm_num;
-    have e2 : 3 ^ 2 = 9 := by norm_num;
-    have e3 : 3 ^ 3 = 27 := by norm_num
-    rw [e1]; rw [e2]
-    --why doesn't rw [e1, e2, e3] work at the start?
-    have t : ((unit ^ 9 : ℤθˣ) : ℤθ) = (unit : ℤθ) ^ 9 := by norm_cast
-    rw [t]; rw [unit_pow_nine]; dsimp
-    use-4209; use-9297; use 2778
-    norm_num
-  change k.succ ≥ 2 at g2 ; clear lower
-  sorry
+    contradiction
+  · change 2 ≤ k.succ  at g2 ; clear lower
 
--- example (a b c : ℤ) : (a : ℤθ) + θ * b + c * θ ^ 2 = ⟨a, b, c⟩ :=
--- by
---   ext
---   simp
---   rw [θ]
+    sorry
+
 
 #eval unit ^ 3
 
